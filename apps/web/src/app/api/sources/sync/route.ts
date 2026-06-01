@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getImapConfig, syncImapInbox } from "@/lib/services/store-sources";
 import { isImapAutoSyncDue } from "@/lib/sources/imap-schedule";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 function checkCronAuth(request: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -32,7 +33,8 @@ export async function GET(request: Request) {
 
 export async function POST() {
   try {
-    const result = await syncImapInbox();
+    const userId = await resolveUserScope();
+    const result = await syncImapInbox(userId);
     return NextResponse.json(result);
   } catch (e) {
     console.error(e);

@@ -2,16 +2,19 @@ import { NextResponse } from "next/server";
 import {
   generateSmartCartSuggestions,
   listCartSuggestions,
+  acceptCartSuggestions,
 } from "@/lib/services/cart";
 import { parseCartPreferences } from "@/lib/cart/preferences";
 import { getCartPreferences } from "@/lib/services/settings";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function GET() {
   try {
-    let suggestions = listCartSuggestions();
+    const userId = await resolveUserScope();
+    let suggestions = listCartSuggestions(userId);
     if (suggestions.length === 0) {
-      await generateSmartCartSuggestions();
-      suggestions = listCartSuggestions();
+      await generateSmartCartSuggestions(undefined);
+      suggestions = listCartSuggestions(userId);
     }
     const total = suggestions.reduce(
       (s, row) => s + (Number(row.estPriceRub) || 0),
@@ -19,7 +22,7 @@ export async function GET() {
     );
     return NextResponse.json({
       suggestions,
-      preferences: getCartPreferences(),
+      preferences: getCartPreferences(userId),
       estimatedTotal: Math.round(total),
     });
   } catch (e) {
@@ -30,14 +33,25 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const userId = await resolveUserScope();
+    const body = await request.json().catch(() => ({}));
+
+    if (body.action === "accept") {
+      const ids = body.ids as string[] | "all" | undefined;
+      const result = await acceptCartSuggestions(ids ?? "all", userId);
+      const suggestions = listCartSuggestions(userId);
+      return NextResponse.json({
+        ...result,
+        suggestions,
+        estimatedTotal: Math.round(
+          suggestions.reduce((s, row) => s + (Number(row.estPriceRub) || 0), 0),
+        ),
+      });
+    }
+
     let prefs;
-    try {
-      const body = await request.json();
-      if (body.cartPreferences) {
-        prefs = parseCartPreferences(JSON.stringify(body.cartPreferences));
-      }
-    } catch {
-      /* empty body — defaults */
+    if (body.cartPreferences) {
+      prefs = parseCartPreferences(JSON.stringify(body.cartPreferences));
     }
 
     const result = await generateSmartCartSuggestions(prefs);
@@ -50,7 +64,7 @@ export async function POST(request: Request) {
   } catch (e) {
     console.error(e);
     return NextResponse.json(
-      { error: "Не удалось сформировать корзину" },
+      { error: "Не удалось обработать корзину" },
       { status: 500 },
     );
   }

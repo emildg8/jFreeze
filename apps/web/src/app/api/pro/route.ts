@@ -1,15 +1,22 @@
 import { NextResponse } from "next/server";
-import { getSettings, updateSettings, isPro } from "@/lib/services/settings";
+import {
+  getSettingsForUser,
+  updateSettingsForUser,
+  isPro,
+} from "@/lib/services/settings";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function GET() {
   try {
-    const settings = getSettings();
+    const userId = await resolveUserScope();
+    const settings = getSettingsForUser(userId);
+    const pro = isPro(userId);
     return NextResponse.json({
       plan: settings.plan,
-      isPro: isPro(),
+      isPro: pro,
       features: {
-        aiVision: isPro() || Boolean(settings.openaiApiKey),
-        familyProfiles: isPro(),
+        aiVision: pro || Boolean(settings.openaiApiKey),
+        familyProfiles: pro,
         smartFridge: true,
         pushNotifications: true,
         csvTemplates: true,
@@ -23,9 +30,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const userId = await resolveUserScope();
     const body = await request.json();
     if (body.action === "activate_trial") {
-      updateSettings({ plan: "pro" });
+      updateSettingsForUser(userId, { plan: "pro" });
       return NextResponse.json({
         plan: "pro",
         message:
@@ -33,7 +41,7 @@ export async function POST(request: Request) {
       });
     }
     if (body.action === "deactivate") {
-      updateSettings({ plan: "free" });
+      updateSettingsForUser(userId, { plan: "free" });
       return NextResponse.json({ plan: "free", message: "Переключено на бесплатный план" });
     }
     return NextResponse.json({ error: "Неизвестное действие" }, { status: 400 });

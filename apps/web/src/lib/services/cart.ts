@@ -11,7 +11,7 @@ import {
 import { runAiCartAdvisor } from "@/lib/cart/ai-advisor";
 import type { CartPreferences } from "@/lib/cart/preferences";
 import { getOrderHistoryForCart, listOrdersWithItems } from "./orders";
-import { getInventorySnapshot } from "./inventory";
+import { getInventorySnapshot, listInventory, upsertInventoryItem } from "./inventory";
 import {
   getSettingsForUser,
   getCartPreferences,
@@ -136,6 +136,44 @@ export function listCartSuggestions(userId: string = GUEST_USER_ID) {
     .filter(
       (s) =>
         (s.userId ?? GUEST_USER_ID) === userId &&
-        (s.profileId ?? "default") === profileId,
+        (s.profileId ?? "default") === profileId &&
+        !s.accepted,
     );
+}
+
+/** Отметить купленное: пополнить холодильник и убрать из списка корзины. */
+export async function acceptCartSuggestions(
+  ids: string[] | "all",
+  userId?: string,
+) {
+  const uid = userId ?? (await resolveUserScope());
+  const pending = listCartSuggestions(uid);
+  const toAccept =
+    ids === "all" ? pending : pending.filter((s) => ids.includes(s.id));
+
+  const inventory = listInventory(uid);
+  for (const s of toAccept) {
+    const existing = inventory.find(
+      (i) =>
+        i.normalizedName === s.normalizedName &&
+        (i.zone === "fridge" || i.zone === "freezer"),
+    );
+    upsertInventoryItem(
+      {
+        name: s.name,
+        qty: (existing?.qty ?? 0) + s.suggestedQty,
+        unit: s.unit ?? "шт",
+        zone: (existing?.zone as "fridge" | "freezer") ?? "fridge",
+        source: "cart",
+      },
+      uid,
+    );
+    getDb()
+      .update(cartSuggestions)
+      .set({ accepted: true })
+      .where(eq(cartSuggestions.id, s.id))
+      .run();
+  }
+
+  return { accepted: toAccept.length };
 }

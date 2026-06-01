@@ -1,6 +1,6 @@
 {
   "name": "jfreeze",
-  "version": "0.2.2-pre-alpha",
+  "version": "0.2.3-pre-alpha",
   "private": true,
   "description": "jFreeze pre-alpha 0.2 — умный холодильник, заказы, IMAP, ОФД, Telegram (docs/FREE_STACK.md)",
   "scripts": {

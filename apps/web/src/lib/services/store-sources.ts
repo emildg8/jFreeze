@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { ensureSeedData } from "@/lib/db/seed";
-import { orders, sourceImports, stores, userSettings } from "@/lib/db/schema";
+import { orders, sourceImports, stores } from "@/lib/db/schema";
 import type { StoreId } from "@/connectors/types";
 import { getSourceCatalog } from "@/lib/sources/detect";
 import {
@@ -18,7 +18,13 @@ import {
   type StoreConnectionsMap,
 } from "@/lib/sources/types";
 import { persistConnectorOrders } from "./orders";
-import { setLastImapSyncAt, getLastImapSyncAt } from "./settings";
+import {
+  getSettingsForUser,
+  setLastImapSyncAt,
+  getLastImapSyncAt,
+  updateSettingsForUser,
+} from "./settings";
+import { GUEST_USER_ID, resolveUserScope } from "@/lib/auth/scope";
 import { isTelegramConfigured } from "@/lib/telegram/config";
 import { notifyTelegramNewOrders } from "@/lib/telegram/notify";
 
@@ -37,48 +43,32 @@ function parseJson<T>(raw: string | null | undefined, fallback: T): T {
   }
 }
 
-export function getStoreConnections(): StoreConnectionsMap {
+export function getStoreConnections(userId: string = GUEST_USER_ID): StoreConnectionsMap {
   ensureSeedData();
-  const db = getDb();
-  const row = db.select().from(userSettings).all()[0];
-  return parseJson(row?.storeConnectionsJson, {});
+  return parseJson(getSettingsForUser(userId).storeConnectionsJson, {});
 }
 
-export function saveStoreConnections(map: StoreConnectionsMap) {
-  ensureSeedData();
-  const db = getDb();
-  const json = JSON.stringify(map);
-  const rows = db.select().from(userSettings).all();
-  if (rows.length === 0) {
-    db.insert(userSettings).values({ id: "default", storeConnectionsJson: json }).run();
-  } else {
-    db.update(userSettings)
-      .set({ storeConnectionsJson: json })
-      .where(eq(userSettings.id, "default"))
-      .run();
-  }
+export function saveStoreConnections(
+  map: StoreConnectionsMap,
+  userId: string = GUEST_USER_ID,
+) {
+  updateSettingsForUser(userId, {
+    storeConnectionsJson: JSON.stringify(map),
+  });
 }
 
-export function getImapConfig(): ImapConfig {
+export function getImapConfig(userId: string = GUEST_USER_ID): ImapConfig {
   ensureSeedData();
-  const db = getDb();
-  const row = db.select().from(userSettings).all()[0];
-  return { ...DEFAULT_IMAP_CONFIG, ...parseJson(row?.imapConfigJson, {}) };
+  return {
+    ...DEFAULT_IMAP_CONFIG,
+    ...parseJson(getSettingsForUser(userId).imapConfigJson, {}),
+  };
 }
 
-export function saveImapConfig(config: ImapConfig) {
-  ensureSeedData();
-  const db = getDb();
-  const json = JSON.stringify(config);
-  const rows = db.select().from(userSettings).all();
-  if (rows.length === 0) {
-    db.insert(userSettings).values({ id: "default", imapConfigJson: json }).run();
-  } else {
-    db.update(userSettings)
-      .set({ imapConfigJson: json })
-      .where(eq(userSettings.id, "default"))
-      .run();
-  }
+export function saveImapConfig(config: ImapConfig, userId: string = GUEST_USER_ID) {
+  updateSettingsForUser(userId, {
+    imapConfigJson: JSON.stringify(config),
+  });
 }
 
 export function maskImapConfig(config: ImapConfig): ImapConfig & { hasPassword: boolean } {
@@ -127,8 +117,9 @@ async function filterNewOrders(
   storeId: StoreId,
   parsed: ParsedSourceImport[],
   contentKey: string,
-  options?: { notifyTelegram?: boolean },
+  options?: { notifyTelegram?: boolean; userId?: string },
 ) {
+  const userId = options?.userId ?? GUEST_USER_ID;
   const hash = contentHash(contentKey);
   if (isImportDuplicate(hash)) {
     return {
@@ -162,6 +153,7 @@ async function filterNewOrders(
   for (const p of toSave) {
     const created = await persistConnectorOrders(p.storeId, p.orders, {
       notifyTelegram: options?.notifyTelegram,
+      userId,
     });
     totalCreated += created.length;
     createdIds.push(...created);
@@ -185,7 +177,9 @@ export async function processEmailImport(options: {
   storeId?: StoreId;
   autoImport?: boolean;
   notifyTelegram?: boolean;
+  userId?: string;
 }) {
+  const userId = options.userId ?? (await resolveUserScope());
   const parsed = importFromEmail({
     raw: options.text,
     eml: options.eml,
@@ -199,6 +193,7 @@ export async function processEmailImport(options: {
   const key = options.eml ?? options.text ?? "";
   const result = await filterNewOrders(parsed.storeId, [parsed], key, {
     notifyTelegram: options.notifyTelegram,
+    userId,
   });
   return { ...result, preview: parsed };
 }
@@ -207,7 +202,9 @@ export async function processSmsImport(options: {
   text: string;
   storeId?: StoreId;
   autoImport?: boolean;
+  userId?: string;
 }) {
+  const userId = options.userId ?? (await resolveUserScope());
   const parsedList = importFromSms(options.text, options.storeId);
   const summary = summarizeImports(parsedList);
 
@@ -216,14 +213,14 @@ export async function processSmsImport(options: {
   }
 
   const storeId = (parsedList[0]?.storeId ?? "receipt") as StoreId;
-  const result = await filterNewOrders(storeId, parsedList, options.text);
+  const result = await filterNewOrders(storeId, parsedList, options.text, { userId });
   return { ...result, preview: parsedList, ...summary };
 }
 
-export function listSourcesState() {
+export function listSourcesState(userId: string = GUEST_USER_ID) {
   const catalog = getSourceCatalog();
-  const connections = getStoreConnections();
-  const imap = maskImapConfig(getImapConfig());
+  const connections = getStoreConnections(userId);
+  const imap = maskImapConfig(getImapConfig(userId));
 
   const items = catalog.map((entry) => {
     const prefs = connections[entry.id] ?? { ...DEFAULT_PREFS };
@@ -233,7 +230,7 @@ export function listSourcesState() {
     };
   });
 
-  const lastImapSyncAt = getLastImapSyncAt();
+  const lastImapSyncAt = getLastImapSyncAt(userId);
 
   return {
     catalog: items,
@@ -243,25 +240,27 @@ export function listSourcesState() {
   };
 }
 
-export async function maybeRunImapAutoSync(): Promise<{
+export async function maybeRunImapAutoSync(userId?: string): Promise<{
   imported: number;
   scanned: number;
   skipped: number;
   message: string;
 } | null> {
+  const uid = userId ?? (await resolveUserScope());
   const { isImapAutoSyncDue } = await import("@/lib/sources/imap-schedule");
-  const cfg = getImapConfig();
+  const cfg = getImapConfig(uid);
   if (!isImapAutoSyncDue(cfg)) return null;
-  return syncImapInbox();
+  return syncImapInbox(uid);
 }
 
-export async function syncImapInbox(): Promise<{
+export async function syncImapInbox(userId?: string): Promise<{
   imported: number;
   scanned: number;
   skipped: number;
   message: string;
 }> {
-  const cfg = getImapConfig();
+  const uid = userId ?? (await resolveUserScope());
+  const cfg = getImapConfig(uid);
   if (!cfg.enabled || !cfg.user?.trim()) {
     return {
       imported: 0,
@@ -289,7 +288,7 @@ export async function syncImapInbox(): Promise<{
 
   let emails;
   try {
-    emails = await fetchImapOrderEmails(cfg, getStoreConnections());
+    emails = await fetchImapOrderEmails(cfg, getStoreConnections(uid));
   } catch (e) {
     return {
       imported: 0,
@@ -299,7 +298,7 @@ export async function syncImapInbox(): Promise<{
     };
   }
 
-  const connections = getStoreConnections();
+  const connections = getStoreConnections(uid);
   let imported = 0;
   let skipped = 0;
   const importedByStore: Record<string, number> = {};
@@ -315,6 +314,7 @@ export async function syncImapInbox(): Promise<{
       eml,
       autoImport: true,
       notifyTelegram: false,
+      userId: uid,
     });
     const n = result.imported ?? 0;
     imported += n;
@@ -330,7 +330,7 @@ export async function syncImapInbox(): Promise<{
     }
   }
 
-  setLastImapSyncAt(new Date());
+  await setLastImapSyncAt(new Date());
 
   const scanned = emails.length;
   const message =

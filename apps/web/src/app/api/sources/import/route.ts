@@ -4,9 +4,11 @@ import {
   processSmsImport,
 } from "@/lib/services/store-sources";
 import type { StoreId } from "@/connectors/types";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function POST(request: Request) {
   try {
+    const userId = await resolveUserScope();
     const contentType = request.headers.get("content-type") ?? "";
     let channel: "email" | "sms" = "email";
     let text: string | undefined;
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
         text: text.trim(),
         storeId,
         autoImport,
+        userId,
       });
       return NextResponse.json(result);
     }
@@ -57,6 +60,7 @@ export async function POST(request: Request) {
       eml: eml?.trim(),
       storeId,
       autoImport,
+      userId,
     });
     return NextResponse.json(result);
   } catch (e) {

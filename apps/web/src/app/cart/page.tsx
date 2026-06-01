@@ -48,6 +48,7 @@ export default function CartPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [accepting, setAccepting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,6 +94,30 @@ export default function CartPage() {
     }
   }
 
+  async function markBought() {
+    if (suggestions.length === 0) return;
+    setAccepting(true);
+    setError(null);
+    try {
+      const data = await apiFetch<{
+        accepted: number;
+        suggestions: Suggestion[];
+        estimatedTotal?: number;
+      }>("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "accept", ids: "all" }),
+      });
+      setSuggestions(data.suggestions ?? []);
+      setEstimatedTotal(data.estimatedTotal ?? null);
+      setAiAdvice(null);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Не удалось отметить");
+    } finally {
+      setAccepting(false);
+    }
+  }
+
   async function copyList() {
     const text = formatCartList(suggestions);
     await navigator.clipboard.writeText(text);
@@ -121,7 +146,7 @@ export default function CartPage() {
 
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
 
-      <div className="pb-24">
+      <div className="pb-36">
         <SmartCartPanel
           initial={prefs}
           loading={generating}
@@ -130,7 +155,7 @@ export default function CartPage() {
       </div>
 
       <div className="fixed inset-x-0 z-[45] border-t border-slate-200/90 bg-white/95 px-4 py-3 shadow-[0_-8px_32px_rgba(15,23,42,0.08)] backdrop-blur-md bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom))]">
-        <div className="mx-auto max-w-lg md:max-w-2xl lg:max-w-3xl">
+        <div className="mx-auto flex max-w-lg flex-col gap-2 md:max-w-2xl lg:max-w-3xl">
           <Button
             className="w-full"
             disabled={generating}
@@ -138,6 +163,16 @@ export default function CartPage() {
           >
             {generating ? "Собираю корзину…" : "Собрать умную корзину"}
           </Button>
+          {suggestions.length > 0 && (
+            <Button
+              variant="secondary"
+              className="w-full"
+              disabled={accepting || generating}
+              onClick={() => void markBought()}
+            >
+              {accepting ? "Обновляю запасы…" : "Купил — в холодильник"}
+            </Button>
+          )}
         </div>
       </div>
 

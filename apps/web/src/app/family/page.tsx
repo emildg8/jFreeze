@@ -63,6 +63,23 @@ export default function FamilyPage() {
     }
   }
 
+  async function removeProfile(id: string) {
+    if (!confirm("Удалить профиль? Позиции холодильника этого профиля останутся в базе.")) {
+      return;
+    }
+    setMessage(null);
+    try {
+      await apiFetch(`/api/profiles?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      setMessage({ variant: "success", text: "Профиль удалён" });
+      await load();
+    } catch (e) {
+      setMessage({
+        variant: "error",
+        text: e instanceof ApiError ? e.message : "Ошибка",
+      });
+    }
+  }
+
   async function switchTo(id: string) {
     setMessage(null);
     try {
@@ -113,15 +130,26 @@ export default function FamilyPage() {
                   <span className="ml-2 text-xs font-medium text-sky-600">активен</span>
                 )}
               </div>
-              {p.id !== activeId && (
-                <Button
-                  variant="secondary"
-                  className="text-xs py-2"
-                  onClick={() => void switchTo(p.id)}
-                >
-                  Выбрать
-                </Button>
-              )}
+              <div className="flex shrink-0 gap-2">
+                {p.id !== activeId && (
+                  <Button
+                    variant="secondary"
+                    className="text-xs py-2"
+                    onClick={() => void switchTo(p.id)}
+                  >
+                    Выбрать
+                  </Button>
+                )}
+                {isPro && p.id !== "default" && (
+                  <Button
+                    variant="ghost"
+                    className="text-xs py-2 text-red-600"
+                    onClick={() => void removeProfile(p.id)}
+                  >
+                    Удалить
+                  </Button>
+                )}
+              </div>
             </Panel>
           </li>
         ))}

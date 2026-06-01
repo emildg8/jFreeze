@@ -81,9 +81,9 @@ export default function MorePage() {
       </Section>
 
       <Panel variant="muted" className="text-sm text-slate-500">
-        <p className="font-semibold text-slate-800">jFreeze 0.2.2-pre-alpha</p>
+        <p className="font-semibold text-slate-800">jFreeze 0.2.3-pre-alpha</p>
         <p className="mt-1 leading-relaxed">
-          IMAP · QR ОФД · расходы по категориям · Telegram · личный кабинет · BYOK AI
+          Заказы ↔ холодильник ↔ корзина · IMAP · QR ОФД · аккаунт · Telegram
         </p>
       </Panel>
     </Screen>

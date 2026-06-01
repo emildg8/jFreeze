@@ -53,6 +53,28 @@ export function estimatePriceRub(normalizedName: string, historyAvg?: number): n
   return 120;
 }
 
+const SHELF_DAYS_FRIDGE: Record<string, number> = {
+  молочные: 7,
+  мясо: 3,
+  рыба: 2,
+  овощи: 6,
+  фрукты: 5,
+  выпечка: 4,
+  бакалея: 30,
+  заморозка: 90,
+  прочее: 14,
+};
+
+/** Ориентировочный срок годности после покупки (холодильник). */
+export function defaultExpiryDate(normalizedName: string): Date {
+  const category = inferCategory(normalizedName);
+  const days = SHELF_DAYS_FRIDGE[category] ?? SHELF_DAYS_FRIDGE.прочее;
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
 export function scoreProduct(
   normalizedName: string,
   priority: import("./preferences").CartPriority,

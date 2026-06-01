@@ -14,8 +14,8 @@ export async function GET() {
     if (isTelegramConfigured()) {
       void runRemindersTick().catch((e) => console.error("reminders tick", e));
     }
-    void maybeRunImapAutoSync().catch((e) => console.error("imap auto sync", e));
     const userId = await resolveUserScope();
+    void maybeRunImapAutoSync(userId).catch((e) => console.error("imap auto sync", e));
     const inventory = listInventory(userId);
     const orders = await listOrdersWithItems(userId);
     let suggestions = listCartSuggestions(userId);

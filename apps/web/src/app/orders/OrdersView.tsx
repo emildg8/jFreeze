@@ -44,6 +44,25 @@ export function OrdersView() {
   const [message, setMessage] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [storeFilter, setStoreFilter] = useState<string | "all">("all");
+  const [toInventoryId, setToInventoryId] = useState<string | null>(null);
+
+  async function addOrderToFridge(orderId: string) {
+    setToInventoryId(orderId);
+    setMessage(null);
+    setError(null);
+    try {
+      const res = await apiFetch<{ added: number }>(
+        `/api/orders/${orderId}/to-inventory`,
+        { method: "POST" },
+      );
+      setMessage(`В холодильник добавлено позиций: ${res.added}`);
+      await refreshCart();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Не удалось добавить");
+    } finally {
+      setToInventoryId(null);
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -227,6 +246,18 @@ export function OrdersView() {
                   </li>
                 ))}
               </ul>
+              {order.items.length > 0 && (
+                <Button
+                  variant="secondary"
+                  className="mt-3 w-full text-sm"
+                  disabled={toInventoryId === order.id}
+                  onClick={() => void addOrderToFridge(order.id)}
+                >
+                  {toInventoryId === order.id
+                    ? "Добавляю…"
+                    : "В холодильник из заказа"}
+                </Button>
+              )}
             </Panel>
           </li>
         ))}

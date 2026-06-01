@@ -25,6 +25,8 @@ export interface AppSettings {
   smartFridgeUrl: string | null;
   smartFridgeToken: string | null;
   cartPreferencesJson: string | null;
+  storeConnectionsJson: string | null;
+  imapConfigJson: string | null;
   lastImapSyncAt: Date | null;
   lastExpiryNotifyAt: Date | null;
 }
@@ -64,6 +66,9 @@ function rowToSettings(row: Record<string, unknown>): AppSettings {
       row.smartFridgeToken) as string | null,
     cartPreferencesJson: (row.cart_preferences_json ??
       row.cartPreferencesJson) as string | null,
+    storeConnectionsJson: (row.store_connections_json ??
+      row.storeConnectionsJson) as string | null,
+    imapConfigJson: (row.imap_config_json ?? row.imapConfigJson) as string | null,
     lastImapSyncAt: parseOptionalTimestamp(
       row.last_imap_sync_at ?? row.lastImapSyncAt,
     ),
@@ -151,6 +156,8 @@ export async function updateSettingsAsync(
     smartFridgeUrl: string | null;
     smartFridgeToken: string | null;
     cartPreferencesJson: string | null;
+    storeConnectionsJson: string | null;
+    imapConfigJson: string | null;
   }>,
 ) {
   const userId = await resolveUserScope();
@@ -170,6 +177,8 @@ export function updateSettings(
     smartFridgeUrl: string | null;
     smartFridgeToken: string | null;
     cartPreferencesJson: string | null;
+    storeConnectionsJson: string | null;
+    imapConfigJson: string | null;
   }>,
 ) {
   updateSettingsForUser(GUEST_USER_ID, partial);
@@ -189,6 +198,8 @@ export function updateSettingsForUser(
     smartFridgeUrl: string | null;
     smartFridgeToken: string | null;
     cartPreferencesJson: string | null;
+    storeConnectionsJson: string | null;
+    imapConfigJson: string | null;
   }>,
 ) {
   ensureSeedData();
@@ -223,6 +234,14 @@ export function updateSettingsForUser(
       partial.cartPreferencesJson !== undefined
         ? partial.cartPreferencesJson
         : current.cartPreferencesJson,
+    storeConnectionsJson:
+      partial.storeConnectionsJson !== undefined
+        ? partial.storeConnectionsJson
+        : current.storeConnectionsJson,
+    imapConfigJson:
+      partial.imapConfigJson !== undefined
+        ? partial.imapConfigJson
+        : current.imapConfigJson,
   };
 
   const row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();
@@ -233,8 +252,8 @@ export function updateSettingsForUser(
   }
 }
 
-export function isPro(): boolean {
-  return getSettings().plan === "pro";
+export function isPro(userId: string = GUEST_USER_ID): boolean {
+  return getSettingsForUser(userId).plan === "pro";
 }
 
 export function canUseAiVision(): boolean {
@@ -254,8 +273,8 @@ export function saveCartPreferences(
   });
 }
 
-export function getLastImapSyncAt(): Date | null {
-  return getSettings().lastImapSyncAt;
+export function getLastImapSyncAt(userId: string = GUEST_USER_ID): Date | null {
+  return getSettingsForUser(userId).lastImapSyncAt;
 }
 
 export async function setLastImapSyncAt(at: Date) {

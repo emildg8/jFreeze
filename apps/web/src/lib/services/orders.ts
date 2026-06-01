@@ -11,6 +11,8 @@ import { GUEST_USER_ID } from "@/lib/auth/scope";
 import { isTelegramConfigured } from "@/lib/telegram/config";
 import { notifyTelegramNewOrders } from "@/lib/telegram/notify";
 import { buildWeeklySpendSummary } from "@/lib/orders/spend-summary";
+import { defaultExpiryDate } from "@/lib/cart/product-knowledge";
+import { listInventory, upsertInventoryItem } from "./inventory";
 
 export async function persistConnectorOrders(
   storeId: string,
@@ -147,4 +149,41 @@ export async function getOrderHistoryForCart(userId?: string) {
       orderedAt: order.orderedAt,
     })),
   );
+}
+
+/** Перенос позиций заказа в холодильник (замыкание цикла «покупка → запасы»). */
+export async function importOrderItemsToInventory(
+  orderId: string,
+  userId?: string,
+) {
+  const uid = userId ?? (await resolveUserScope());
+  const orders = await listOrdersWithItems(uid);
+  const order = orders.find((o) => o.id === orderId);
+  if (!order) throw new Error("Заказ не найден");
+  if (order.items.length === 0) throw new Error("В заказе нет позиций");
+
+  const inventory = listInventory(uid);
+  let added = 0;
+
+  for (const item of order.items) {
+    const existing = inventory.find(
+      (i) =>
+        i.normalizedName === item.normalizedName &&
+        (i.zone === "fridge" || i.zone === "freezer"),
+    );
+    upsertInventoryItem(
+      {
+        name: item.name,
+        qty: (existing?.qty ?? 0) + item.qty,
+        unit: item.unit ?? "шт",
+        zone: "fridge",
+        expiryAt: existing?.expiryAt ?? defaultExpiryDate(item.normalizedName),
+        source: "order",
+      },
+      uid,
+    );
+    added += 1;
+  }
+
+  return { added, orderId };
 }
