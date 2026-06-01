@@ -123,7 +123,7 @@ function markStoreConnected(storeId: string) {
     .run();
 }
 
-function filterNewOrders(
+async function filterNewOrders(
   storeId: StoreId,
   parsed: ParsedSourceImport[],
   contentKey: string,
@@ -160,7 +160,7 @@ function filterNewOrders(
   let totalCreated = 0;
   const createdIds: string[] = [];
   for (const p of toSave) {
-    const created = persistConnectorOrders(p.storeId, p.orders, {
+    const created = await persistConnectorOrders(p.storeId, p.orders, {
       notifyTelegram: options?.notifyTelegram,
     });
     totalCreated += created.length;
@@ -179,7 +179,7 @@ function filterNewOrders(
   };
 }
 
-export function processEmailImport(options: {
+export async function processEmailImport(options: {
   text?: string;
   eml?: string;
   storeId?: StoreId;
@@ -197,13 +197,13 @@ export function processEmailImport(options: {
   }
 
   const key = options.eml ?? options.text ?? "";
-  const result = filterNewOrders(parsed.storeId, [parsed], key, {
+  const result = await filterNewOrders(parsed.storeId, [parsed], key, {
     notifyTelegram: options.notifyTelegram,
   });
   return { ...result, preview: parsed };
 }
 
-export function processSmsImport(options: {
+export async function processSmsImport(options: {
   text: string;
   storeId?: StoreId;
   autoImport?: boolean;
@@ -216,7 +216,7 @@ export function processSmsImport(options: {
   }
 
   const storeId = (parsedList[0]?.storeId ?? "receipt") as StoreId;
-  const result = filterNewOrders(storeId, parsedList, options.text);
+  const result = await filterNewOrders(storeId, parsedList, options.text);
   return { ...result, preview: parsedList, ...summary };
 }
 
@@ -311,7 +311,7 @@ export async function syncImapInbox(): Promise<{
       continue;
     }
 
-    const result = processEmailImport({
+    const result = await processEmailImport({
       eml,
       autoImport: true,
       notifyTelegram: false,

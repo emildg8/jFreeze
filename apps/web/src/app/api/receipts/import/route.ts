@@ -34,7 +34,7 @@ export async function POST(request: Request) {
         preview = result.preview;
 
         if (autoImport && orders.length > 0) {
-          const created = persistConnectorOrders("receipt", orders);
+          const created = await persistConnectorOrders("receipt", orders);
           return NextResponse.json({
             imported: created.length,
             kind,
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
           ? new Date(body.orderedAt)
           : new Date();
         const items = body.items as ConnectorOrderItem[];
-        const created = persistConnectorOrders("receipt", [
+        const created = await persistConnectorOrders("receipt", [
           {
             externalId: `receipt-${Date.now()}`,
             orderedAt,

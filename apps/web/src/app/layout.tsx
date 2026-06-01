@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const geist = Geist({
   subsets: ["latin", "cyrillic"],
@@ -35,7 +36,9 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${geist.variable} h-full`}>
       <body className="min-h-full font-sans text-slate-900 antialiased">
-        <AppShell>{children}</AppShell>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

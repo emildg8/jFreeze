@@ -31,6 +31,55 @@ export function migrateColumns(sqlite: Database.Database) {
   add("user_settings", "imap_config_json", "TEXT");
   add("user_settings", "last_imap_sync_at", "INTEGER");
   add("user_settings", "last_expiry_notify_at", "INTEGER");
+  add("orders", "user_id", "TEXT NOT NULL DEFAULT 'default'");
+  add("inventory_items", "user_id", "TEXT NOT NULL DEFAULT 'default'");
+  add("cart_suggestions", "user_id", "TEXT NOT NULL DEFAULT 'default'");
+  add("profiles", "user_id", "TEXT NOT NULL DEFAULT 'default'");
+
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS auth_user (
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      email TEXT UNIQUE,
+      emailVerified INTEGER,
+      image TEXT,
+      phone TEXT UNIQUE
+    );
+    CREATE TABLE IF NOT EXISTS auth_account (
+      userId TEXT NOT NULL,
+      type TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      providerAccountId TEXT NOT NULL,
+      refresh_token TEXT,
+      access_token TEXT,
+      expires_at INTEGER,
+      token_type TEXT,
+      scope TEXT,
+      id_token TEXT,
+      session_state TEXT,
+      PRIMARY KEY (provider, providerAccountId)
+    );
+    CREATE TABLE IF NOT EXISTS auth_session (
+      sessionToken TEXT PRIMARY KEY,
+      userId TEXT NOT NULL,
+      expires INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS auth_verification_token (
+      identifier TEXT NOT NULL,
+      token TEXT NOT NULL,
+      expires INTEGER NOT NULL,
+      PRIMARY KEY (identifier, token)
+    );
+    CREATE TABLE IF NOT EXISTS phone_otps (
+      phone TEXT PRIMARY KEY,
+      code_hash TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL,
+      failed_attempts INTEGER NOT NULL DEFAULT 0
+    );
+  `);
+
+  add("phone_otps", "failed_attempts", "INTEGER NOT NULL DEFAULT 0");
 
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS source_imports (

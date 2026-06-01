@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       } else {
         orders = parseCsvOrders(body.csv);
       }
-      const created = persistConnectorOrders(storeId, orders);
+      const created = await persistConnectorOrders(storeId, orders);
       return NextResponse.json({ imported: created.length });
     }
 
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         orderedAt: body.orderedAt ? new Date(body.orderedAt) : new Date(),
         items: body.items,
       };
-      const created = persistConnectorOrders("manual", [order]);
+      const created = await persistConnectorOrders("manual", [order]);
       return NextResponse.json({ imported: created.length });
     }
 

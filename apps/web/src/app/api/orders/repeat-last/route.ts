@@ -3,7 +3,7 @@ import { repeatLastOrder } from "@/lib/services/orders";
 
 export async function POST() {
   try {
-    const result = repeatLastOrder();
+    const result = await repeatLastOrder();
     if (!result) {
       return NextResponse.json(
         { error: "Нет заказов для повтора" },

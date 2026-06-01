@@ -5,7 +5,8 @@ import { ensureSeedData } from "@/lib/db/seed";
 import { inventoryItems } from "@/lib/db/schema";
 import { normalizeProductName } from "@/lib/orders/normalize";
 import type { InventorySnapshot } from "@/lib/cart/engine";
-import { getSettings } from "./settings";
+import { getSettingsForUser } from "./settings";
+import { GUEST_USER_ID } from "@/lib/auth/scope";
 
 export interface InventoryInput {
   name: string;
@@ -18,23 +19,30 @@ export interface InventoryInput {
   barcode?: string;
 }
 
-function activeProfileId() {
-  return getSettings().activeProfileId;
+function scope(userId: string = GUEST_USER_ID) {
+  const profileId = getSettingsForUser(userId).activeProfileId;
+  return { userId, profileId };
 }
 
-export function listInventory() {
+export function listInventory(userId: string = GUEST_USER_ID) {
   ensureSeedData();
   const db = getDb();
-  const profileId = activeProfileId();
+  const { userId: uid, profileId } = scope(userId);
   return db
     .select()
     .from(inventoryItems)
     .all()
-    .filter((i) => (i.profileId ?? "default") === profileId);
+    .filter(
+      (i) =>
+        (i.userId ?? GUEST_USER_ID) === uid &&
+        (i.profileId ?? "default") === profileId,
+    );
 }
 
-export function getInventorySnapshot(): InventorySnapshot[] {
-  return listInventory().map((item) => ({
+export function getInventorySnapshot(
+  userId: string = GUEST_USER_ID,
+): InventorySnapshot[] {
+  return listInventory(userId).map((item) => ({
     normalizedName: item.normalizedName,
     name: item.name,
     qty: item.qty,
@@ -43,10 +51,13 @@ export function getInventorySnapshot(): InventorySnapshot[] {
   }));
 }
 
-export function upsertInventoryItem(input: InventoryInput) {
+export function upsertInventoryItem(
+  input: InventoryInput,
+  userId: string = GUEST_USER_ID,
+) {
   ensureSeedData();
   const db = getDb();
-  const profileId = activeProfileId();
+  const { userId: uid, profileId } = scope(userId);
   const normalizedName = normalizeProductName(input.name);
   const zone = input.zone ?? "fridge";
 
@@ -56,6 +67,7 @@ export function upsertInventoryItem(input: InventoryInput) {
     .all()
     .find(
       (i) =>
+        (i.userId ?? GUEST_USER_ID) === uid &&
         (i.profileId ?? "default") === profileId &&
         i.normalizedName === normalizedName &&
         i.zone === zone,
@@ -81,6 +93,7 @@ export function upsertInventoryItem(input: InventoryInput) {
   db.insert(inventoryItems)
     .values({
       id,
+      userId: uid,
       profileId,
       name: input.name,
       normalizedName,
@@ -97,16 +110,20 @@ export function upsertInventoryItem(input: InventoryInput) {
   return id;
 }
 
-export function deleteInventoryItem(id: string) {
+export function deleteInventoryItem(id: string, userId: string = GUEST_USER_ID) {
   ensureSeedData();
   const db = getDb();
-  const profileId = activeProfileId();
+  const { userId: uid, profileId } = scope(userId);
   const item = db
     .select()
     .from(inventoryItems)
     .where(eq(inventoryItems.id, id))
     .all()[0];
-  if (!item || (item.profileId ?? "default") !== profileId) {
+  if (
+    !item ||
+    (item.userId ?? GUEST_USER_ID) !== uid ||
+    (item.profileId ?? "default") !== profileId
+  ) {
     throw new Error("Позиция не найдена");
   }
   db.delete(inventoryItems).where(eq(inventoryItems.id, id)).run();

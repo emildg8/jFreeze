@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const format = parseFormat(searchParams.get("format"));
     const sinceDays = parseInt(searchParams.get("sinceDays") ?? "0", 10);
 
-    let orders = listOrdersWithItems();
+    let orders = await listOrdersWithItems();
 
     if (sinceDays > 0) {
       const since = new Date();

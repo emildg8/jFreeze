@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.2.2-pre-alpha] — 2026-06-01
+
+### Добавлено
+
+- **Личный кабинет** (`/account`) и вход (`/login`): телефон (OTP), почта, Google, Apple — [docs/AUTH.md](docs/AUTH.md)
+- Данные заказов, холодильника, корзины и настроек привязаны к `userId`; **гостевой режим** без входа
+- NextAuth v5, SQLite-адаптер, middleware для защиты кабинета
+- API: `/api/auth/providers`, `/api/auth/phone/send`, `/api/auth/linked`
+- E2E-тесты auth; unit-тесты нормализации телефона и безопасности callback URL
+
 ### Улучшено (UX)
 
 - Плавающая кнопка «Чек», кликабельная статистика, обновление ↻ на главной и заказах
@@ -13,88 +23,11 @@
 - Понятные сообщения об ошибках API и обрыве сети (мобильный сервер)
 - Корзина и заказы: пустые состояния с действиями; совет по QR только для новичков
 - Расходы по категориям: инсайт «больше всего на …»
+- **Ещё → Аккаунт**: карточка входа / «Вы вошли как …»; аватар в шапке
+
+### Безопасность (auth)
+
+- OTP: TTL 10 мин, cooldown 60 сек, сброс после 5 неверных попыток
+- `callbackUrl` ограничен путями приложения (open redirect)
 
 ## [0.2.1-pre-alpha] — 2026-06-01
-
-### Добавлено
-
-- Главная: **расходы по категориям** за 7 дней (молочные, мясо, овощи…)
-- Заказы: **live-камера QR ОФД** на `/orders`
-- **Расширение Chrome/Edge** — [docs/BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md)
-- Default branch `main`, CI badge на `main`
-
-## [0.2.0-pre-alpha] — 2026-06-01
-
-Второй pre-alpha: источники заказов, IMAP, ОФД QR, Telegram, пять платформ, стабилизация monorepo.
-
-### Добавлено
-
-- **Платформы:** Web/PWA, Windows (Electron), Android/iOS (Capacitor), Telegram-бот — [docs/PLATFORMS.md](docs/PLATFORMS.md)
-- **Источники заказов:** почта, SMS, автоопределение магазинов РФ — `/sources`
-- **IMAP:** Gmail / Яндекс / Mail.ru (`imapflow`), пресеты, авто-синк 6/12/24 ч, `npm run imap:sync`
-- **QR ОФД:** вкладка на «Заказы», API `/api/receipts/ofd`, QR с фото — [docs/OFD.md](docs/OFD.md)
-- **Telegram:** уведомления, семейная лента, `/link` — [docs/TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md)
-- Авто-напоминания о сроке годности в Telegram (`POST /api/reminders/tick`, `npm run reminders:daily`)
-- Экспорт заказов: Excel, CSV, JSON — `/export`
-- Сканер штрихкодов (PWA + Capacitor), Open Food Facts
-- Импорт чеков: фото, PDF, CSV, EML, текст из почты
-- Заказы: поиск, фильтр по магазину, «Повторить последний заказ»
-- Главная: расходы за 7 дней, быстрые ссылки
-- Холодильник: быстрые сроки +3/+7/+14/+30 дн.
-- `npm run verify` — lint, unit, build, e2e; CI GitHub Actions
-- Настройки: сервер для мобильных клиентов, `GET /api/health`
-
-### Исправлено
-
-- Monorepo: один `package-lock.json`, `turbopack.root` + `outputFileTracingRoot`
-- Dev по умолчанию Webpack (`npm run dev`), Turbopack — `npm run dev:turbo`
-- SQLite: путь `data/jfreeze.db` при запуске из корня monorepo
-- E2E стабильны (`CI=1`, `next start` на порту 3099)
-- Границы ошибок: `error.tsx`, `global-error.tsx`, `loading.tsx`
-- IMAP: одно Telegram-уведомление за синхронизацию; поиск по доменам включённых магазинов
-
-### Ограничения
-
-- Нет официальных API Озон / Самокат и др. — импорт из почты, SMS, CSV, чеков
-- IMAP/OFD HTML-парсинг зависит от оператора; детальный ОФД — опционально `PROVERKA_CHEKA_TOKEN`
-- Локальная SQLite, без облачной синхронизации между устройствами
-
-### Установка
-
-```bash
-git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
-cd jFreeze
-npm install
-cp apps/web/.env.example apps/web/.env.local
-npm run dev
-```
-
-## [0.1.0-pre-alpha] — 2026-06-01
-
-Первая публичная pre-alpha для тестирования и самостоятельного развёртывания.
-
-### Включено
-
-- PWA: главная, заказы, холодильник, умная корзина, «Ещё»
-- Импорт заказов: демо, CSV, ручной ввод, чеки
-- Умная корзина: приоритет цена/качество/состав, бюджет, фильтры, AI-совет
-- Холодильник: фото (эвристика + OpenAI), инвентарь, план расстановки
-- Срок годности и напоминания
-- Единый UI (Screen / Section / Panel, нижняя навигация)
-- Семья, Pro (демо), smart-fridge stub, Capacitor-ready
-
-### Политика «только бесплатные инструменты»
-
-- Документ: [docs/FREE_STACK.md](docs/FREE_STACK.md)
-- Разработка и запуск: Node, Next.js, SQLite, GitHub — $0
-- Pro в приложении — демо-переключатель, **без оплаты**
-- OpenAI — опционально (BYOK), без ключа работает эвристика и rule-based корзина
-
-### Установка (0.1)
-
-```bash
-git clone -b release/pre-alpha-0.1 https://github.com/emildg8/jFreeze.git
-cd jFreeze
-npm install
-cd apps/web && cp .env.example .env.local && npm run dev
-```

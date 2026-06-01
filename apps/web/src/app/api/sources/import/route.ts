@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       if (!text?.trim()) {
         return NextResponse.json({ error: "Вставьте текст SMS" }, { status: 400 });
       }
-      const result = processSmsImport({
+      const result = await processSmsImport({
         text: text.trim(),
         storeId,
         autoImport,
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = processEmailImport({
+    const result = await processEmailImport({
       text: text?.trim(),
       eml: eml?.trim(),
       storeId,

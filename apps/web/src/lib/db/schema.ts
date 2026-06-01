@@ -1,5 +1,13 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
+export {
+  authUsers,
+  authAccounts,
+  authSessions,
+  authVerificationTokens,
+  phoneOtps,
+} from "./auth-schema";
+
 export const stores = sqliteTable("stores", {
   id: text("id").primaryKey(),
   displayName: text("display_name").notNull(),
@@ -10,6 +18,7 @@ export const stores = sqliteTable("stores", {
 
 export const orders = sqliteTable("orders", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull().default("default"),
   storeId: text("store_id").notNull(),
   profileId: text("profile_id").default("default"),
   orderedAt: integer("ordered_at", { mode: "timestamp" }).notNull(),
@@ -30,6 +39,7 @@ export const orderItems = sqliteTable("order_items", {
 
 export const inventoryItems = sqliteTable("inventory_items", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull().default("default"),
   profileId: text("profile_id").default("default"),
   name: text("name").notNull(),
   normalizedName: text("normalized_name").notNull(),
@@ -54,6 +64,7 @@ export const fridgePhotos = sqliteTable("fridge_photos", {
 
 export const cartSuggestions = sqliteTable("cart_suggestions", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull().default("default"),
   profileId: text("profile_id").default("default"),
   name: text("name").notNull(),
   normalizedName: text("normalized_name").notNull(),
@@ -99,6 +110,7 @@ export const sourceImports = sqliteTable("source_imports", {
 
 export const profiles = sqliteTable("profiles", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull().default("default"),
   name: text("name").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });

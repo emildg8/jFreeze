@@ -43,5 +43,7 @@ test("страница платформ", async ({ page }) => {
 
 test("настройки — сервер и навигация", async ({ page }) => {
   await page.goto("/settings");
-  await expect(page.getByText("Сервер jFreeze")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Сервер jFreeze" }),
+  ).toBeVisible();
 });

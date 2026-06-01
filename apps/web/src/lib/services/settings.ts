@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { ensureSeedData } from "@/lib/db/seed";
 import { userSettings } from "@/lib/db/schema";
+import { GUEST_USER_ID, resolveUserScope } from "@/lib/auth/scope";
+import { ensureUserWorkspace } from "@/lib/auth/user-setup";
 import {
   parseCartPreferences,
   type CartPreferences,
@@ -88,18 +90,42 @@ export function maskSettings(settings: AppSettings): PublicSettings {
   };
 }
 
+/** Гостевой режим и фоновые скрипты без HTTP-сессии. */
 export function getSettings(): AppSettings {
+  return getSettingsForUser(GUEST_USER_ID);
+}
+
+export function getSettingsForUser(userId: string): AppSettings {
   ensureSeedData();
   const db = getDb();
-  const row = db.select().from(userSettings).all()[0];
+  if (userId !== GUEST_USER_ID) {
+    ensureUserWorkspace(userId);
+  }
+  let row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();
+  if (!row && userId !== GUEST_USER_ID) {
+    ensureUserWorkspace(userId);
+    row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();
+  }
   if (!row) {
-    return rowToSettings({ id: "default" });
+    row = db.select().from(userSettings).where(eq(userSettings.id, GUEST_USER_ID)).get();
+  }
+  if (!row) {
+    return rowToSettings({ id: GUEST_USER_ID });
   }
   return rowToSettings(row as unknown as Record<string, unknown>);
 }
 
+export async function getSettingsAsync(): Promise<AppSettings> {
+  const userId = await resolveUserScope();
+  return getSettingsForUser(userId);
+}
+
 export function getPublicSettings(): PublicSettings {
   return maskSettings(getSettings());
+}
+
+export async function getPublicSettingsAsync(): Promise<PublicSettings> {
+  return maskSettings(await getSettingsAsync());
 }
 
 /** Ключ для Vision: свой → Pro-серверный env → нет */
@@ -110,6 +136,25 @@ export function resolveOpenAiApiKey(): string | null {
     return process.env.OPENAI_API_KEY.trim();
   }
   return null;
+}
+
+export async function updateSettingsAsync(
+  partial: Partial<{
+    minQtyThreshold: number;
+    historyDays: number;
+    onboardingDone: boolean;
+    openaiApiKey: string | null;
+    expiryRemindersEnabled: boolean;
+    pushEnabled: boolean;
+    activeProfileId: string;
+    plan: Plan;
+    smartFridgeUrl: string | null;
+    smartFridgeToken: string | null;
+    cartPreferencesJson: string | null;
+  }>,
+) {
+  const userId = await resolveUserScope();
+  updateSettingsForUser(userId, partial);
 }
 
 export function updateSettings(
@@ -127,12 +172,33 @@ export function updateSettings(
     cartPreferencesJson: string | null;
   }>,
 ) {
+  updateSettingsForUser(GUEST_USER_ID, partial);
+}
+
+export function updateSettingsForUser(
+  userId: string,
+  partial: Partial<{
+    minQtyThreshold: number;
+    historyDays: number;
+    onboardingDone: boolean;
+    openaiApiKey: string | null;
+    expiryRemindersEnabled: boolean;
+    pushEnabled: boolean;
+    activeProfileId: string;
+    plan: Plan;
+    smartFridgeUrl: string | null;
+    smartFridgeToken: string | null;
+    cartPreferencesJson: string | null;
+  }>,
+) {
   ensureSeedData();
   const db = getDb();
-  const current = getSettings();
+  if (userId !== GUEST_USER_ID) ensureUserWorkspace(userId);
+  const current = getSettingsForUser(userId);
 
   const next: AppSettings = {
     ...current,
+    id: userId,
     minQtyThreshold: partial.minQtyThreshold ?? current.minQtyThreshold,
     historyDays: partial.historyDays ?? current.historyDays,
     onboardingDone: partial.onboardingDone ?? current.onboardingDone,
@@ -159,11 +225,11 @@ export function updateSettings(
         : current.cartPreferencesJson,
   };
 
-  const rows = db.select().from(userSettings).all();
-  if (rows.length === 0) {
+  const row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();
+  if (!row) {
     db.insert(userSettings).values(next).run();
   } else {
-    db.update(userSettings).set(next).where(eq(userSettings.id, "default")).run();
+    db.update(userSettings).set(next).where(eq(userSettings.id, userId)).run();
   }
 }
 
@@ -175,12 +241,15 @@ export function canUseAiVision(): boolean {
   return resolveOpenAiApiKey() !== null;
 }
 
-export function getCartPreferences(): CartPreferences {
-  return parseCartPreferences(getSettings().cartPreferencesJson);
+export function getCartPreferences(userId: string = GUEST_USER_ID): CartPreferences {
+  return parseCartPreferences(getSettingsForUser(userId).cartPreferencesJson);
 }
 
-export function saveCartPreferences(prefs: CartPreferences) {
-  updateSettings({
+export function saveCartPreferences(
+  prefs: CartPreferences,
+  userId: string = GUEST_USER_ID,
+) {
+  updateSettingsForUser(userId, {
     cartPreferencesJson: JSON.stringify(prefs),
   });
 }
@@ -189,12 +258,13 @@ export function getLastImapSyncAt(): Date | null {
   return getSettings().lastImapSyncAt;
 }
 
-export function setLastImapSyncAt(at: Date) {
+export async function setLastImapSyncAt(at: Date) {
+  const userId = await resolveUserScope();
   ensureSeedData();
   const db = getDb();
   db.update(userSettings)
     .set({ lastImapSyncAt: at })
-    .where(eq(userSettings.id, "default"))
+    .where(eq(userSettings.id, userId))
     .run();
 }
 
@@ -202,11 +272,12 @@ export function getLastExpiryNotifyAt(): Date | null {
   return getSettings().lastExpiryNotifyAt;
 }
 
-export function setLastExpiryNotifyAt(at: Date) {
+export async function setLastExpiryNotifyAt(at: Date) {
+  const userId = await resolveUserScope();
   ensureSeedData();
   const db = getDb();
   db.update(userSettings)
     .set({ lastExpiryNotifyAt: at })
-    .where(eq(userSettings.id, "default"))
+    .where(eq(userSettings.id, userId))
     .run();
 }

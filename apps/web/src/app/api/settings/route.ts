@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server";
 import {
-  getPublicSettings,
-  updateSettings,
+  getPublicSettingsAsync,
+  updateSettingsAsync,
   maskSettings,
-  getSettings,
+  getSettingsAsync,
   saveCartPreferences,
   getCartPreferences,
 } from "@/lib/services/settings";
 import { parseCartPreferences } from "@/lib/cart/preferences";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function GET() {
   try {
+    const userId = await resolveUserScope();
     return NextResponse.json({
-      settings: getPublicSettings(),
-      cartPreferences: getCartPreferences(),
+      settings: await getPublicSettingsAsync(),
+      cartPreferences: getCartPreferences(userId),
     });
   } catch (e) {
     console.error(e);
@@ -24,6 +26,7 @@ export async function GET() {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
+    const userId = await resolveUserScope();
     const patch: Record<string, unknown> = {};
 
     if (body.minQtyThreshold !== undefined) patch.minQtyThreshold = body.minQtyThreshold;
@@ -53,13 +56,16 @@ export async function PATCH(request: Request) {
     }
 
     if (body.cartPreferences !== undefined) {
-      saveCartPreferences(parseCartPreferences(JSON.stringify(body.cartPreferences)));
+      saveCartPreferences(
+        parseCartPreferences(JSON.stringify(body.cartPreferences)),
+        userId,
+      );
     }
 
-    updateSettings(patch);
+    await updateSettingsAsync(patch);
     return NextResponse.json({
-      settings: maskSettings(getSettings()),
-      cartPreferences: getCartPreferences(),
+      settings: maskSettings(await getSettingsAsync()),
+      cartPreferences: getCartPreferences(userId),
     });
   } catch (e) {
     console.error(e);

@@ -170,7 +170,7 @@ async function handleCommand(msg: TelegramMessage) {
   }
 
   if (cmd === "/orders") {
-    const orders = listOrdersWithItems().slice(0, 5);
+    const orders = (await listOrdersWithItems()).slice(0, 5);
     if (orders.length === 0) {
       await reply(chatId, "Заказов пока нет в приложении.");
       return;

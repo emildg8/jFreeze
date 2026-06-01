@@ -29,6 +29,8 @@ export const SECONDARY_ROUTES: Record<
   "/storage": { title: "Хранение", backHref: "/more" },
   "/family": { title: "Семья", backHref: "/more" },
   "/pro": { title: "Pro", backHref: "/more" },
+  "/account": { title: "Кабинет", backHref: "/more" },
+  "/login": { title: "Вход", backHref: "/more" },
 };
 
 export function isPrimaryRoute(pathname: string): boolean {

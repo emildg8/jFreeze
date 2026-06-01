@@ -35,7 +35,7 @@ export async function syncStore(storeId: StoreId, sinceDays = 90) {
   const since = new Date();
   since.setDate(since.getDate() - sinceDays);
   const connectorOrders = await connector.syncOrders(since);
-  const created = persistConnectorOrders(storeId, connectorOrders);
+  const created = await persistConnectorOrders(storeId, connectorOrders);
 
   if (created.length > 0) {
     const db = getDb();

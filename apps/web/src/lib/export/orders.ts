@@ -1,7 +1,9 @@
 import { getStoreLabel } from "@/lib/constants/stores";
 import type { listOrdersWithItems } from "@/lib/services/orders";
 
-export type OrderWithItems = ReturnType<typeof listOrdersWithItems>[number];
+export type OrderWithItems = Awaited<
+  ReturnType<typeof listOrdersWithItems>
+>[number];
 
 export interface OrderExportRow {
   orderId: string;

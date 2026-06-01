@@ -3,7 +3,7 @@ import { listOrdersWithItems } from "@/lib/services/orders";
 
 export async function GET() {
   try {
-    const orders = listOrdersWithItems();
+    const orders = await listOrdersWithItems();
     return NextResponse.json({ orders });
   } catch (e) {
     console.error(e);

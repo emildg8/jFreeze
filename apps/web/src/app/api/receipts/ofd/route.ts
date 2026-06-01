@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const flat = result.orders[0];
 
     if (body.autoImport === true) {
-      const created = persistConnectorOrders("receipt", result.orders);
+      const created = await persistConnectorOrders("receipt", result.orders);
       return NextResponse.json({
         imported: created.length,
         autoImport: true,

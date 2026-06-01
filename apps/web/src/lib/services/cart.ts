@@ -12,7 +12,12 @@ import { runAiCartAdvisor } from "@/lib/cart/ai-advisor";
 import type { CartPreferences } from "@/lib/cart/preferences";
 import { getOrderHistoryForCart, listOrdersWithItems } from "./orders";
 import { getInventorySnapshot } from "./inventory";
-import { getSettings, getCartPreferences, saveCartPreferences } from "./settings";
+import {
+  getSettingsForUser,
+  getCartPreferences,
+  saveCartPreferences,
+} from "./settings";
+import { resolveUserScope, GUEST_USER_ID } from "@/lib/auth/scope";
 
 export function generateCartSuggestions() {
   return generateSmartCartSuggestions(getCartPreferences());
@@ -21,14 +26,15 @@ export function generateCartSuggestions() {
 export async function generateSmartCartSuggestions(
   prefs?: CartPreferences,
 ) {
-  const settings = getSettings();
-  const preferences = prefs ?? getCartPreferences();
-  saveCartPreferences(preferences);
+  const userId = await resolveUserScope();
+  const settings = getSettingsForUser(userId);
+  const preferences = prefs ?? getCartPreferences(userId);
+  saveCartPreferences(preferences, userId);
 
-  const priceHistory = buildPriceHistoryFromOrders();
+  const priceHistory = await buildPriceHistoryFromOrders(userId);
   const items = suggestSmartCart(
-    getOrderHistoryForCart(),
-    getInventorySnapshot(),
+    await getOrderHistoryForCart(userId),
+    getInventorySnapshot(userId),
     {
       minQtyThreshold: settings.minQtyThreshold,
       historyDays: settings.historyDays,
@@ -37,17 +43,17 @@ export async function generateSmartCartSuggestions(
     priceHistory,
   );
 
-  persistSmartSuggestions(items);
+  persistSmartSuggestions(items, userId);
 
   const aiAdvice = await runAiCartAdvisor({
     items,
-    inventory: getInventorySnapshot(),
+    inventory: getInventorySnapshot(userId),
     prefs: preferences,
     dietaryNotes: preferences.dietaryNotes,
   });
 
   return {
-    suggestions: listCartSuggestions(),
+    suggestions: listCartSuggestions(userId),
     smart: items,
     estimatedTotal: estimateCartTotal(items),
     aiAdvice,
@@ -55,8 +61,8 @@ export async function generateSmartCartSuggestions(
   };
 }
 
-function buildPriceHistoryFromOrders() {
-  const orders = listOrdersWithItems();
+async function buildPriceHistoryFromOrders(userId: string) {
+  const orders = await listOrdersWithItems(userId);
   const map = new Map<string, { sum: number; count: number }>();
 
   for (const order of orders) {
@@ -77,16 +83,20 @@ function buildPriceHistoryFromOrders() {
   }));
 }
 
-function persistSmartSuggestions(items: SmartCartItem[]) {
+function persistSmartSuggestions(items: SmartCartItem[], userId: string) {
   ensureSeedData();
   const db = getDb();
-  const profileId = getSettings().activeProfileId;
+  const profileId = getSettingsForUser(userId).activeProfileId;
 
   const existing = db
     .select()
     .from(cartSuggestions)
     .all()
-    .filter((row) => (row.profileId ?? "default") === profileId);
+    .filter(
+      (row) =>
+        (row.userId ?? GUEST_USER_ID) === userId &&
+        (row.profileId ?? "default") === profileId,
+    );
 
   for (const row of existing) {
     db.delete(cartSuggestions).where(eq(cartSuggestions.id, row.id)).run();
@@ -97,6 +107,7 @@ function persistSmartSuggestions(items: SmartCartItem[]) {
     db.insert(cartSuggestions)
       .values({
         id: uuid(),
+        userId,
         profileId,
         name: s.name,
         normalizedName: s.normalizedName,
@@ -114,13 +125,17 @@ function persistSmartSuggestions(items: SmartCartItem[]) {
   }
 }
 
-export function listCartSuggestions() {
+export function listCartSuggestions(userId: string = GUEST_USER_ID) {
   ensureSeedData();
   const db = getDb();
-  const profileId = getSettings().activeProfileId;
+  const profileId = getSettingsForUser(userId).activeProfileId;
   return db
     .select()
     .from(cartSuggestions)
     .all()
-    .filter((s) => (s.profileId ?? "default") === profileId);
+    .filter(
+      (s) =>
+        (s.userId ?? GUEST_USER_ID) === userId &&
+        (s.profileId ?? "default") === profileId,
+    );
 }

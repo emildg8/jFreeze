@@ -5,19 +5,22 @@ import { ensureSeedData } from "@/lib/db/seed";
 import { orders, orderItems } from "@/lib/db/schema";
 import { normalizeOrderItems } from "@/lib/orders/normalize";
 import type { ConnectorOrder } from "@/connectors/types";
-import { getSettings } from "./settings";
+import { getSettingsForUser } from "./settings";
+import { resolveUserScope } from "@/lib/auth/scope";
+import { GUEST_USER_ID } from "@/lib/auth/scope";
 import { isTelegramConfigured } from "@/lib/telegram/config";
 import { notifyTelegramNewOrders } from "@/lib/telegram/notify";
 import { buildWeeklySpendSummary } from "@/lib/orders/spend-summary";
 
-export function persistConnectorOrders(
+export async function persistConnectorOrders(
   storeId: string,
   connectorOrders: ConnectorOrder[],
-  options?: { notifyTelegram?: boolean },
+  options?: { notifyTelegram?: boolean; userId?: string },
 ) {
   ensureSeedData();
   const db = getDb();
-  const profileId = getSettings().activeProfileId;
+  const userId = options?.userId ?? (await resolveUserScope());
+  const profileId = getSettingsForUser(userId).activeProfileId;
   const created: string[] = [];
 
   for (const order of connectorOrders) {
@@ -26,6 +29,7 @@ export function persistConnectorOrders(
     db.insert(orders)
       .values({
         id: orderId,
+        userId,
         storeId,
         profileId,
         orderedAt: order.orderedAt,
@@ -62,15 +66,20 @@ export function persistConnectorOrders(
   return created;
 }
 
-export function listOrdersWithItems() {
+export async function listOrdersWithItems(userId?: string) {
   ensureSeedData();
   const db = getDb();
-  const profileId = getSettings().activeProfileId;
+  const uid = userId ?? (await resolveUserScope());
+  const profileId = getSettingsForUser(uid).activeProfileId;
   const allOrders = db
     .select()
     .from(orders)
     .all()
-    .filter((o) => (o.profileId ?? "default") === profileId);
+    .filter(
+      (o) =>
+        (o.userId ?? GUEST_USER_ID) === uid &&
+        (o.profileId ?? "default") === profileId,
+    );
 
   const result = allOrders.map((order) => ({
     ...order,
@@ -85,12 +94,15 @@ export function listOrdersWithItems() {
   );
 }
 
-export function repeatLastOrder(): { imported: number; storeId: string } | null {
-  const orders = listOrdersWithItems();
+export async function repeatLastOrder(): Promise<{
+  imported: number;
+  storeId: string;
+} | null> {
+  const orders = await listOrdersWithItems();
   const last = orders[0];
   if (!last?.items.length) return null;
 
-  const created = persistConnectorOrders(last.storeId, [
+  const created = await persistConnectorOrders(last.storeId, [
     {
       externalId: `repeat-${last.id}-${Date.now()}`,
       orderedAt: new Date(),
@@ -107,8 +119,8 @@ export function repeatLastOrder(): { imported: number; storeId: string } | null 
   return { imported: created.length, storeId: last.storeId };
 }
 
-export function getWeeklySpendSummary() {
-  const orders = listOrdersWithItems();
+export async function getWeeklySpendSummary() {
+  const orders = await listOrdersWithItems();
   return buildWeeklySpendSummary(
     orders.map((o) => ({
       storeId: o.storeId,
@@ -124,8 +136,8 @@ export function getWeeklySpendSummary() {
   );
 }
 
-export function getOrderHistoryForCart() {
-  const data = listOrdersWithItems();
+export async function getOrderHistoryForCart(userId?: string) {
+  const data = await listOrdersWithItems(userId);
   return data.flatMap((order) =>
     order.items.map((item) => ({
       normalizedName: item.normalizedName,

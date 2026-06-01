@@ -3,6 +3,7 @@ import { Section } from "@/components/ui/Section";
 import { NavCard } from "@/components/ui/NavCard";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { MoreAccountCard } from "@/components/auth/MoreAccountCard";
 
 const links = [
   {
@@ -60,6 +61,10 @@ export default function MorePage() {
     <Screen>
       <PageHeader title="Ещё" description="Разделы и справочники" />
 
+      <Section title="Аккаунт">
+        <MoreAccountCard />
+      </Section>
+
       <Section>
         <ul className="space-y-2">
           {links.map((link) => (
@@ -76,9 +81,9 @@ export default function MorePage() {
       </Section>
 
       <Panel variant="muted" className="text-sm text-slate-500">
-        <p className="font-semibold text-slate-800">jFreeze 0.2.1-pre-alpha</p>
+        <p className="font-semibold text-slate-800">jFreeze 0.2.2-pre-alpha</p>
         <p className="mt-1 leading-relaxed">
-          IMAP · QR ОФД · расходы по категориям · Telegram · расширение Chrome · BYOK AI
+          IMAP · QR ОФД · расходы по категориям · Telegram · личный кабинет · BYOK AI
         </p>
       </Panel>
     </Screen>
