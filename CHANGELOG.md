@@ -4,6 +4,7 @@
 
 ### Добавлено
 
+- Сканер штрихкодов: камера (ML Kit в Capacitor / html5-qrcode в PWA), с фото, lookup Open Food Facts
 - Импорт чеков: фото, PDF, CSV/TXT, `.eml`, вставка текста из почты (`/api/receipts/import`, страница «Заказы»)
 
 ## [0.1.0-pre-alpha] — 2026-06-01
