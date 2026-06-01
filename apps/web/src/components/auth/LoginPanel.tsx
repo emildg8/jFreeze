@@ -187,6 +187,11 @@ export function LoginPanel() {
         description="Синхронизация заказов, холодильника и настроек между устройствами"
       />
 
+      <Panel variant="muted" className="text-sm text-slate-600">
+        Уже пользовались без входа? Заказы, холодильник и корзина с этого устройства
+        перенесутся в аккаунт при первом входе.
+      </Panel>
+
       {error && (
         <StatusBanner variant="error" onDismiss={() => setError(null)}>
           {error}

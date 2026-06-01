@@ -29,8 +29,8 @@ export async function GET() {
       inventoryCount: inventory.length,
       orderCount: orders.length,
       cartCount: suggestions.length,
-      weekly: await getWeeklySpendSummary(),
-      expiry: getExpirySummary(),
+      weekly: await getWeeklySpendSummary(userId),
+      expiry: getExpirySummary(userId),
       settings: {
         onboardingDone: settings.onboardingDone,
         plan: settings.plan,

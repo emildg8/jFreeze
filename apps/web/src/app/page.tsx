@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useOnMount } from "@/lib/hooks/use-on-mount";
+import { HomeAccountPrompt } from "@/components/auth/HomeAccountPrompt";
 import { Screen } from "@/components/ui/Screen";
 import { Section } from "@/components/ui/Section";
 import { StatCard } from "@/components/ui/StatCard";
@@ -31,6 +33,8 @@ interface Stats {
 }
 
 export default function HomePage() {
+  const { status: sessionStatus } = useSession();
+  const isGuest = sessionStatus === "unauthenticated";
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -83,6 +87,14 @@ export default function HomePage() {
           inventoryCount={stats.inventoryCount}
           cartCount={stats.cartCount}
           onboardingDone
+          suggestAccount={isGuest}
+        />
+      )}
+
+      {stats && isGuest && (
+        <HomeAccountPrompt
+          orderCount={stats.orderCount}
+          inventoryCount={stats.inventoryCount}
         />
       )}
 

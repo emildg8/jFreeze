@@ -8,6 +8,8 @@ interface HomeGuideProps {
   inventoryCount: number;
   cartCount: number;
   onboardingDone: boolean;
+  /** Гость с данными — подсказка про аккаунт */
+  suggestAccount?: boolean;
 }
 
 interface GuideCard {
@@ -71,6 +73,22 @@ function buildCards(props: HomeGuideProps): GuideCard[] {
       text: "Подключите почту (IMAP) или перешлите SMS — меньше ручного ввода с Ozon и др.",
       href: "/sources",
       cta: "Источники",
+      variant: "secondary",
+    });
+  }
+
+  if (
+    props.suggestAccount &&
+    props.orderCount + props.inventoryCount > 0 &&
+    cards.length < 2
+  ) {
+    cards.push({
+      id: "account",
+      emoji: "👤",
+      title: "На всех устройствах",
+      text: "Войдите в аккаунт — те же заказы и холодильник на телефоне, ПК и в Telegram-боте.",
+      href: "/login?callbackUrl=/",
+      cta: "Войти",
       variant: "secondary",
     });
   }

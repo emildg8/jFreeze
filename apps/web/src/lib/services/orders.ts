@@ -119,8 +119,8 @@ export async function repeatLastOrder(): Promise<{
   return { imported: created.length, storeId: last.storeId };
 }
 
-export async function getWeeklySpendSummary() {
-  const orders = await listOrdersWithItems();
+export async function getWeeklySpendSummary(userId?: string) {
+  const orders = await listOrdersWithItems(userId);
   return buildWeeklySpendSummary(
     orders.map((o) => ({
       storeId: o.storeId,

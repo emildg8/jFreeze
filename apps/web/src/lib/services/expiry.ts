@@ -1,7 +1,8 @@
 import { getDb } from "@/lib/db/client";
 import { ensureSeedData } from "@/lib/db/seed";
 import { inventoryItems } from "@/lib/db/schema";
-import { getSettings } from "./settings";
+import { getSettingsForUser } from "./settings";
+import { GUEST_USER_ID } from "@/lib/auth/scope";
 
 export type ExpiryUrgency = "expired" | "today" | "soon" | "ok";
 
@@ -23,17 +24,25 @@ function classify(daysLeft: number): ExpiryUrgency {
   return "ok";
 }
 
-export function listExpiryAlerts(withinDays = 7): ExpiryAlert[] {
+export function listExpiryAlerts(
+  withinDays = 7,
+  userId: string = GUEST_USER_ID,
+): ExpiryAlert[] {
   ensureSeedData();
-  if (!getSettings().expiryRemindersEnabled) return [];
+  if (!getSettingsForUser(userId).expiryRemindersEnabled) return [];
 
   const db = getDb();
-  const profileId = getSettings().activeProfileId;
+  const profileId = getSettingsForUser(userId).activeProfileId;
   const items = db
     .select()
     .from(inventoryItems)
     .all()
-    .filter((i) => (i.profileId ?? "default") === profileId && i.expiryAt);
+    .filter(
+      (i) =>
+        (i.userId ?? GUEST_USER_ID) === userId &&
+        (i.profileId ?? "default") === profileId &&
+        i.expiryAt,
+    );
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -67,12 +76,12 @@ export function listExpiryAlerts(withinDays = 7): ExpiryAlert[] {
   return alerts.sort((a, b) => a.daysLeft - b.daysLeft);
 }
 
-export function getExpirySummary(): {
+export function getExpirySummary(userId: string = GUEST_USER_ID): {
   expired: number;
   today: number;
   soon: number;
 } {
-  const alerts = listExpiryAlerts(30);
+  const alerts = listExpiryAlerts(30, userId);
   return {
     expired: alerts.filter((a) => a.urgency === "expired").length,
     today: alerts.filter((a) => a.urgency === "today").length,

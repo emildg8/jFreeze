@@ -1,8 +1,12 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
+import { useOnMount } from "@/lib/hooks/use-on-mount";
+import { apiFetch, ApiError } from "@/lib/api/client";
 import { Screen } from "@/components/ui/Screen";
+import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +18,12 @@ import { labelAuthProvider } from "@/lib/auth/labels";
 import { accountDisplayName, formatAccountPhone } from "@/lib/auth/profile";
 import { useLinkedAccount } from "@/lib/hooks/use-linked-account";
 
+interface AccountStats {
+  inventoryCount: number;
+  orderCount: number;
+  cartCount: number;
+}
+
 interface AccountCabinetProps {
   session: Session;
 }
@@ -21,6 +31,20 @@ interface AccountCabinetProps {
 export function AccountCabinet({ session }: AccountCabinetProps) {
   const user = session.user;
   const { providers, phone, loading, error } = useLinkedAccount(user.phone);
+  const [stats, setStats] = useState<AccountStats | null>(null);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const data = await apiFetch<AccountStats>("/api/stats");
+      setStats(data);
+    } catch (e) {
+      if (e instanceof ApiError) console.error(e.message);
+    }
+  }, []);
+
+  useOnMount(() => {
+    void loadStats();
+  });
 
   const displayPhone = phone ?? user.phone;
   const formattedPhone = formatAccountPhone(displayPhone);
@@ -61,6 +85,30 @@ export function AccountCabinet({ session }: AccountCabinetProps) {
         </div>
       </Panel>
 
+      {stats && (
+        <div className="grid gap-3 grid-cols-3">
+          <StatCard
+            label="Заказы"
+            value={stats.orderCount}
+            href="/orders"
+            className="!p-3 [&_p:nth-child(2)]:text-2xl"
+          />
+          <StatCard
+            label="В холоде"
+            value={stats.inventoryCount}
+            href="/fridge"
+            className="!p-3 [&_p:nth-child(2)]:text-2xl"
+          />
+          <StatCard
+            label="Корзина"
+            value={stats.cartCount}
+            tone="brand"
+            href="/cart"
+            className="!p-3 [&_p:nth-child(2)]:text-2xl"
+          />
+        </div>
+      )}
+
       <Panel>
         <h2 className="mb-2 text-sm font-semibold text-slate-800">Способы входа</h2>
         {loading ? (
@@ -89,19 +137,20 @@ export function AccountCabinet({ session }: AccountCabinetProps) {
       </Panel>
 
       <StatusBanner variant="success">
-        Заказы, холодильник и настройки привязаны к этому аккаунту на сервере.
+        Заказы, холодильник, корзина и семейные профили привязаны к этому аккаунту.
+        При первом входе данные с гостевого режима переносятся автоматически.
       </StatusBanner>
 
       <div className="grid gap-2 sm:grid-cols-2">
-        <LinkButton href="/orders">Мои заказы</LinkButton>
-        <LinkButton href="/fridge" variant="secondary">
-          Холодильник
+        <LinkButton href="/">Главная и расходы</LinkButton>
+        <LinkButton href="/family" variant="secondary">
+          Семья и профили
+        </LinkButton>
+        <LinkButton href="/sources" variant="secondary">
+          Источники заказов
         </LinkButton>
         <LinkButton href="/settings" variant="secondary">
           Настройки
-        </LinkButton>
-        <LinkButton href="/" variant="secondary">
-          На главную
         </LinkButton>
       </div>
     </Screen>

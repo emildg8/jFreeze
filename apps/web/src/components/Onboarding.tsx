@@ -88,15 +88,20 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
     },
     {
       title: "Шаг 3: Умная корзина",
-      text: "Соберём список покупок с учётом истории и запасов. Настройте приоритет: цена, качество или здоровье.",
+      text: "Соберём список покупок с учётом истории и запасов. Настройте приоритет: цена, качество или здоровье. Позже можно войти в аккаунт — данные с этого устройства сохранятся.",
       action: (
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <LinkButton href="/cart" className="flex-1">
-            Собрать корзину
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <LinkButton href="/cart" className="flex-1">
+              Собрать корзину
+            </LinkButton>
+            <Button onClick={() => void finish()} disabled={loading}>
+              {loading ? "Готово…" : "На главную"}
+            </Button>
+          </div>
+          <LinkButton href="/login?callbackUrl=/" variant="secondary" className="w-full">
+            Войти и сохранить на всех устройствах
           </LinkButton>
-          <Button onClick={() => void finish()} disabled={loading}>
-            {loading ? "Готово…" : "На главную"}
-          </Button>
         </div>
       ),
     },
