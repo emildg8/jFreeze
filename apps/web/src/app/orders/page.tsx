@@ -99,6 +99,8 @@ export default function OrdersPage() {
       {message && <StatusBanner variant="success">{message}</StatusBanner>}
 
       <ReceiptImportPanel
+        defaultTab="ofd"
+        showOfdCamera
         onImported={async () => {
           setMessage("Чек добавлен в заказы");
           await refreshCart();

@@ -8,6 +8,7 @@ import type { ConnectorOrder } from "@/connectors/types";
 import { getSettings } from "./settings";
 import { isTelegramConfigured } from "@/lib/telegram/config";
 import { notifyTelegramNewOrders } from "@/lib/telegram/notify";
+import { buildWeeklySpendSummary } from "@/lib/orders/spend-summary";
 
 export function persistConnectorOrders(
   storeId: string,
@@ -106,34 +107,21 @@ export function repeatLastOrder(): { imported: number; storeId: string } | null 
   return { imported: created.length, storeId: last.storeId };
 }
 
-export function getWeeklySpendSummary(): {
-  totalRub: number;
-  orderCount: number;
-  byStore: Array<{ storeId: string; totalRub: number; count: number }>;
-} {
+export function getWeeklySpendSummary() {
   const orders = listOrdersWithItems();
-  const since = new Date();
-  since.setDate(since.getDate() - 7);
-  since.setHours(0, 0, 0, 0);
-
-  const recent = orders.filter((o) => o.orderedAt >= since);
-  const byStoreMap = new Map<string, { totalRub: number; count: number }>();
-  let totalRub = 0;
-
-  for (const o of recent) {
-    const sum = o.totalRub ?? o.items.reduce((acc, i) => acc + i.qty, 0);
-    totalRub += sum;
-    const cur = byStoreMap.get(o.storeId) ?? { totalRub: 0, count: 0 };
-    cur.totalRub += sum;
-    cur.count += 1;
-    byStoreMap.set(o.storeId, cur);
-  }
-
-  const byStore = [...byStoreMap.entries()]
-    .map(([storeId, v]) => ({ storeId, ...v }))
-    .sort((a, b) => b.totalRub - a.totalRub);
-
-  return { totalRub, orderCount: recent.length, byStore };
+  return buildWeeklySpendSummary(
+    orders.map((o) => ({
+      storeId: o.storeId,
+      orderedAt: o.orderedAt,
+      totalRub: o.totalRub,
+      items: o.items.map((i) => ({
+        normalizedName: i.normalizedName,
+        name: i.name,
+        qty: i.qty,
+        category: i.category,
+      })),
+    })),
+  );
 }
 
 export function getOrderHistoryForCart() {

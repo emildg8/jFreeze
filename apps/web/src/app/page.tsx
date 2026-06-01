@@ -14,12 +14,17 @@ import { StoreChips } from "@/components/StoreChips";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { StatusBanner } from "@/components/ui/StatusBanner";
+import { SpendByCategoryPanel } from "@/components/SpendByCategoryPanel";
 
 interface Stats {
   inventoryCount: number;
   orderCount: number;
   cartCount: number;
-  weekly?: { totalRub: number; orderCount: number };
+  weekly?: {
+    totalRub: number;
+    orderCount: number;
+    byCategory?: Array<{ category: string; totalRub: number; itemCount: number }>;
+  };
   expiry?: { expired: number; today: number; soon: number };
   settings: { onboardingDone: boolean; plan?: string };
 }
@@ -92,21 +97,29 @@ export default function HomePage() {
       <StatCard label="Заказов в истории" value={stats?.orderCount ?? 0} />
 
       {stats && stats.weekly && stats.weekly.orderCount > 0 && (
-        <Panel className="text-sm">
-          <p className="font-medium text-slate-800">За 7 дней</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-[var(--brand)]">
-            {stats.weekly.totalRub.toLocaleString("ru-RU", {
-              maximumFractionDigits: 0,
-            })}{" "}
-            ₽
-          </p>
-          <p className="text-xs text-slate-500">
-            {stats.weekly.orderCount} заказ(ов) · см.{" "}
-            <a href="/orders" className="font-medium text-sky-600 underline">
-              историю
-            </a>
-          </p>
-        </Panel>
+        <>
+          <Panel className="text-sm">
+            <p className="font-medium text-slate-800">За 7 дней</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[var(--brand)]">
+              {stats.weekly.totalRub.toLocaleString("ru-RU", {
+                maximumFractionDigits: 0,
+              })}{" "}
+              ₽
+            </p>
+            <p className="text-xs text-slate-500">
+              {stats.weekly.orderCount} заказ(ов) · см.{" "}
+              <a href="/orders" className="font-medium text-sky-600 underline">
+                историю
+              </a>
+            </p>
+          </Panel>
+          {stats.weekly.byCategory && stats.weekly.byCategory.length > 0 && (
+            <SpendByCategoryPanel
+              totalRub={stats.weekly.totalRub}
+              byCategory={stats.weekly.byCategory}
+            />
+          )}
+        </>
       )}
 
       <Section title="Быстрые действия">

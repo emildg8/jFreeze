@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.2.1-pre-alpha] — 2026-06-01
+
+### Добавлено
+
+- Главная: **расходы по категориям** за 7 дней (молочные, мясо, овощи…)
+- Заказы: **live-камера QR ОФД** на `/orders`
+- **Расширение Chrome/Edge** — [docs/BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md)
+- Default branch `main`, CI badge на `main`
+
 ## [0.2.0-pre-alpha] — 2026-06-01
 
 Второй pre-alpha: источники заказов, IMAP, ОФД QR, Telegram, пять платформ, стабилизация monorepo.

@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "jFreeze — чеки из браузера",
+  "version": "0.2.0",
+  "description": "Отправка выделенного текста чека или письма в jFreeze",
+  "permissions": ["storage", "contextMenus", "activeTab", "notifications"],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "jFreeze",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  }
+}

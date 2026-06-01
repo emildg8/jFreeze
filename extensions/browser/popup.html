@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>jFreeze</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 12px;
+        width: 280px;
+        font-size: 13px;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+        color: #475569;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: #0ea5e9;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      p.hint {
+        margin: 10px 0 0;
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.4;
+      }
+      #status {
+        margin-top: 8px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <label for="baseUrl">Адрес jFreeze</label>
+    <input id="baseUrl" type="url" placeholder="http://localhost:3000" />
+    <button type="button" id="save">Сохранить</button>
+    <button type="button" id="open" style="margin-top: 8px; background: #64748b">
+      Открыть приложение
+    </button>
+    <p class="hint">
+      Выделите текст чека на странице → ПКМ → «Отправить в jFreeze». На Gmail/Ozon
+      есть кнопка «→ jFreeze».
+    </p>
+    <p id="status"></p>
+    <script src="popup.js"></script>
+  </body>
+</html>

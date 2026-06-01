@@ -42,12 +42,19 @@ const PLATFORMS = [
     icon: "✈️",
     href: "/family",
   },
+  {
+    id: "ext",
+    label: "Расширение Chrome",
+    description: "Чеки из почты и маркетплейсов — extensions/browser",
+    icon: "🧩",
+    href: "/orders",
+  },
 ] as const;
 
 export default function PlatformsPage() {
   return (
     <Screen>
-      <PageHeader description="Пять способов пользоваться jFreeze" />
+      <PageHeader description="Шесть способов пользоваться jFreeze" />
 
       <Section title="Клиенты">
         <ul className="space-y-2">

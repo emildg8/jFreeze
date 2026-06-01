@@ -36,7 +36,7 @@ IDE: VS Code, Cursor, Neovim — на выбор, без требований к
 ## Запуск у себя (бесплатно)
 
 ```bash
-git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
+git clone https://github.com/emildg8/jFreeze.git
 cd jFreeze && npm install
 cd apps/web && cp .env.example .env.local && npm run dev
 ```

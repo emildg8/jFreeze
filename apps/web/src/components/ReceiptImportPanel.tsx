@@ -7,6 +7,7 @@ import { Input } from "./ui/Input";
 import { SegmentedControl } from "./ui/SegmentedControl";
 import { Section } from "./ui/Section";
 import { ApiError, apiFetchRaw } from "@/lib/api/client";
+import { OfdQrCameraPanel } from "@/components/OfdQrCameraPanel";
 
 type Tab = "file" | "photo" | "email" | "ofd";
 
@@ -28,17 +29,25 @@ interface ParseResponse {
 
 interface ReceiptImportPanelProps {
   onImported: () => void;
+  /** Вкладка по умолчанию (например на странице заказов). */
+  defaultTab?: Tab;
+  /** Live-камера для QR ОФД. */
+  showOfdCamera?: boolean;
 }
 
 const ACCEPT =
   ".csv,.txt,.pdf,.eml,image/jpeg,image/png,image/webp,text/csv,text/plain,message/rfc822,application/pdf";
 
-export function ReceiptImportPanel({ onImported }: ReceiptImportPanelProps) {
+export function ReceiptImportPanel({
+  onImported,
+  defaultTab = "file",
+  showOfdCamera = false,
+}: ReceiptImportPanelProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
   const emlRef = useRef<HTMLInputElement>(null);
 
-  const [tab, setTab] = useState<Tab>("file");
+  const [tab, setTab] = useState<Tab>(defaultTab);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailText, setEmailText] = useState("");
@@ -218,6 +227,15 @@ export function ReceiptImportPanel({ onImported }: ReceiptImportPanelProps) {
               QR с фото
             </Button>
           </div>
+          {showOfdCamera && (
+            <OfdQrCameraPanel
+              disabled={loading}
+              onScanned={(payload) => {
+                setOfdQr(payload);
+                void parseOfdQrText(payload);
+              }}
+            />
+          )}
         </Panel>
       )}
 

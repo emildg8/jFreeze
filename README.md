@@ -1,16 +1,16 @@
 # jFreeze — pre-alpha 0.2
 
-[![CI](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml/badge.svg?branch=release/pre-alpha-0.2)](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml)
+[![CI](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml)
 
 > Умный холодильник, история заказов, корзина, семья, Telegram.  
-> **Платформы:** Web/PWA · Windows · Android · iOS · Telegram-бот.
+> **Платформы:** Web/PWA · Windows · Android · iOS · Telegram · **расширение Chrome**.
 
 > Инструменты: [docs/FREE_STACK.md](docs/FREE_STACK.md) · Платформы: [docs/PLATFORMS.md](docs/PLATFORMS.md) · **Релиз:** [docs/RELEASE.md](docs/RELEASE.md)
 
 ## Быстрый старт (веб)
 
 ```bash
-git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
+git clone https://github.com/emildg8/jFreeze.git
 cd jFreeze
 npm install
 cp apps/web/.env.example apps/web/.env.local
@@ -35,6 +35,7 @@ Lint · unit · production build · e2e smoke.
 | **Windows** | `npm run build:desktop` → `apps/desktop` → `npm run dist` |
 | **Android / iOS** | [docs/MOBILE.md](docs/MOBILE.md) |
 | **Telegram** | [docs/TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) |
+| **Chrome / Edge** | [docs/BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md) |
 
 В приложении: **Ещё → Все платформы**.
 
@@ -42,7 +43,8 @@ Lint · unit · production build · e2e smoke.
 
 | Область | Возможности |
 |---------|-------------|
-| **Заказы** | Демо, CSV, чеки, **QR ОФД**, почта/SMS, **IMAP**, экспорт Excel |
+| **Заказы** | Демо, CSV, чеки, **QR ОФД** (камера на /orders), почта/SMS, **IMAP**, экспорт Excel |
+| **Аналитика** | Расходы за 7 дней и **по категориям** на главной |
 | **Холодильник** | Инвентарь, фото, штрихкод, сроки, план полок |
 | **Корзина** | Умный подбор, AI (BYOK), шаринг списка |
 | **Семья** | Профили, Telegram-лента файлов |
@@ -69,16 +71,17 @@ npm run imap:sync
 | UI | `apps/web/src/app/*` |
 | API | `apps/web/src/app/api/*` |
 | Desktop | `apps/desktop/` (Electron) |
+| Расширение | `extensions/browser/` |
 | Данные | SQLite `apps/web/data/jfreeze.db` |
 
 ## Версии
 
 | Версия | Ветка |
 |--------|--------|
-| **0.2.0-pre-alpha** (текущая) | `release/pre-alpha-0.2` |
+| **0.2.0-pre-alpha** (текущая) | `main` |
 | 0.1.0-pre-alpha | `release/pre-alpha-0.1` |
 
-История: [CHANGELOG.md](CHANGELOG.md)
+Релиз: [v0.2.0-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.0-pre-alpha) · История: [CHANGELOG.md](CHANGELOG.md)
 
 ## Лицензия
 

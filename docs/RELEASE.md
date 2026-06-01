@@ -25,7 +25,7 @@ git push origin v0.2.0-pre-alpha
 ## Установка (пользователи)
 
 ```bash
-git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
+git clone https://github.com/emildg8/jFreeze.git
 cd jFreeze
 npm install
 cp apps/web/.env.example apps/web/.env.local
