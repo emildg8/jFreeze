@@ -6,10 +6,13 @@ import { orders, orderItems } from "@/lib/db/schema";
 import { normalizeOrderItems } from "@/lib/orders/normalize";
 import type { ConnectorOrder } from "@/connectors/types";
 import { getSettings } from "./settings";
+import { isTelegramConfigured } from "@/lib/telegram/config";
+import { notifyTelegramNewOrders } from "@/lib/telegram/notify";
 
 export function persistConnectorOrders(
   storeId: string,
   connectorOrders: ConnectorOrder[],
+  options?: { notifyTelegram?: boolean },
 ) {
   ensureSeedData();
   const db = getDb();
@@ -47,6 +50,14 @@ export function persistConnectorOrders(
     created.push(orderId);
   }
 
+  if (
+    created.length > 0 &&
+    options?.notifyTelegram !== false &&
+    isTelegramConfigured()
+  ) {
+    void notifyTelegramNewOrders(created.length, storeId);
+  }
+
   return created;
 }
 
@@ -71,6 +82,58 @@ export function listOrdersWithItems() {
   return result.sort(
     (a, b) => b.orderedAt.getTime() - a.orderedAt.getTime(),
   );
+}
+
+export function repeatLastOrder(): { imported: number; storeId: string } | null {
+  const orders = listOrdersWithItems();
+  const last = orders[0];
+  if (!last?.items.length) return null;
+
+  const created = persistConnectorOrders(last.storeId, [
+    {
+      externalId: `repeat-${last.id}-${Date.now()}`,
+      orderedAt: new Date(),
+      totalRub: last.totalRub ?? undefined,
+      items: last.items.map((i) => ({
+        name: i.name,
+        qty: i.qty,
+        unit: i.unit ?? "шт",
+        category: i.category ?? undefined,
+      })),
+    },
+  ]);
+
+  return { imported: created.length, storeId: last.storeId };
+}
+
+export function getWeeklySpendSummary(): {
+  totalRub: number;
+  orderCount: number;
+  byStore: Array<{ storeId: string; totalRub: number; count: number }>;
+} {
+  const orders = listOrdersWithItems();
+  const since = new Date();
+  since.setDate(since.getDate() - 7);
+  since.setHours(0, 0, 0, 0);
+
+  const recent = orders.filter((o) => o.orderedAt >= since);
+  const byStoreMap = new Map<string, { totalRub: number; count: number }>();
+  let totalRub = 0;
+
+  for (const o of recent) {
+    const sum = o.totalRub ?? o.items.reduce((acc, i) => acc + i.qty, 0);
+    totalRub += sum;
+    const cur = byStoreMap.get(o.storeId) ?? { totalRub: 0, count: 0 };
+    cur.totalRub += sum;
+    cur.count += 1;
+    byStoreMap.set(o.storeId, cur);
+  }
+
+  const byStore = [...byStoreMap.entries()]
+    .map(([storeId, v]) => ({ storeId, ...v }))
+    .sort((a, b) => b.totalRub - a.totalRub);
+
+  return { totalRub, orderCount: recent.length, byStore };
 }
 
 export function getOrderHistoryForCart() {

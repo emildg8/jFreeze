@@ -219,6 +219,27 @@ export default function FridgePage() {
               aria-label="Срок годности"
             />
           </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: "+3 дн.", days: 3 },
+              { label: "+7 дн.", days: 7 },
+              { label: "+14 дн.", days: 14 },
+              { label: "+30 дн.", days: 30 },
+            ].map(({ label, days }) => (
+              <button
+                key={days}
+                type="button"
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-sky-200"
+                onClick={() => {
+                  const d = new Date();
+                  d.setDate(d.getDate() + days);
+                  setExpiry(d.toISOString().slice(0, 10));
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <Button onClick={() => void addManual()}>Добавить</Button>
         </div>
       </Panel>

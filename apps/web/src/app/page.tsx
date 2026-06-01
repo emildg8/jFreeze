@@ -19,6 +19,7 @@ interface Stats {
   inventoryCount: number;
   orderCount: number;
   cartCount: number;
+  weekly?: { totalRub: number; orderCount: number };
   expiry?: { expired: number; today: number; soon: number };
   settings: { onboardingDone: boolean; plan?: string };
 }
@@ -37,7 +38,9 @@ export default function HomePage() {
     }
   }, []);
 
-  useOnMount(load);
+  useOnMount(() => {
+    void load();
+  });
 
   const showOnboarding = stats && !stats.settings?.onboardingDone;
   const isPro = stats?.settings?.plan === "pro";
@@ -61,14 +64,16 @@ export default function HomePage() {
       <div className="grid gap-3 grid-cols-2">
         <StatCard
           label="В холодильнике"
-          value={stats?.inventoryCount ?? "—"}
+          value={stats ? stats.inventoryCount : "…"}
           hint="позиций"
+          className={!stats ? "animate-pulse opacity-70" : undefined}
         />
         <StatCard
           label="Купить"
-          value={stats?.cartCount ?? "—"}
+          value={stats ? stats.cartCount : "…"}
           hint="в корзине"
           tone="brand"
+          className={!stats ? "animate-pulse opacity-70" : undefined}
         />
       </div>
 
@@ -86,6 +91,24 @@ export default function HomePage() {
 
       <StatCard label="Заказов в истории" value={stats?.orderCount ?? 0} />
 
+      {stats && stats.weekly && stats.weekly.orderCount > 0 && (
+        <Panel className="text-sm">
+          <p className="font-medium text-slate-800">За 7 дней</p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-[var(--brand)]">
+            {stats.weekly.totalRub.toLocaleString("ru-RU", {
+              maximumFractionDigits: 0,
+            })}{" "}
+            ₽
+          </p>
+          <p className="text-xs text-slate-500">
+            {stats.weekly.orderCount} заказ(ов) · см.{" "}
+            <a href="/orders" className="font-medium text-sky-600 underline">
+              историю
+            </a>
+          </p>
+        </Panel>
+      )}
+
       <Section title="Быстрые действия">
         <ActionBar className="flex-col sm:flex-row">
           <LinkButton href="/fridge" className="flex-1">
@@ -93,6 +116,9 @@ export default function HomePage() {
           </LinkButton>
           <LinkButton href="/cart" variant="secondary" className="flex-1">
             Умная корзина
+          </LinkButton>
+          <LinkButton href="/sources" variant="secondary" className="flex-1">
+            Почта и SMS
           </LinkButton>
         </ActionBar>
       </Section>

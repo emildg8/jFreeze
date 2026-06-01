@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, apiFetchRaw } from "@/lib/api/client";
 import { Button } from "./ui/Button";
 
 interface UploadZoneProps {
@@ -24,7 +24,7 @@ export function UploadZone({ zone, onComplete }: UploadZoneProps) {
       const form = new FormData();
       form.append("file", file);
       form.append("zone", zone);
-      const res = await fetch("/api/fridge/photo", { method: "POST", body: form });
+      const res = await apiFetchRaw("/api/fridge/photo", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new ApiError(data.error ?? "Ошибка", res.status);
       onComplete({

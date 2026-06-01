@@ -5,14 +5,16 @@ export function StatCard({
   value,
   hint,
   tone = "default",
+  className = "",
 }: {
   label: string;
   value: React.ReactNode;
   hint?: string;
   tone?: "default" | "brand";
+  className?: string;
 }) {
   return (
-    <Panel className="!p-4">
+    <Panel className={`!p-4 ${className}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
         {label}
       </p>

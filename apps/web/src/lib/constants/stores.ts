@@ -7,6 +7,9 @@ export const STORE_LABELS: Record<string, string> = {
   samokat: "Самокат",
   pyaterochka: "Пятёрочка",
   perekrestok: "Перекрёсток",
+  wildberries: "Wildberries",
+  yandex_lavka: "Яндекс Лавка",
+  magnit: "Магнит",
 };
 
 export function getStoreLabel(storeId: string): string {

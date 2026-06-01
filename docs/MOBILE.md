@@ -1,42 +1,70 @@
-# jFreeze — мобильное приложение (Capacitor Android)
+# jFreeze — мобильные приложения (Android и iOS)
 
-## Сканер штрихкодов
+Общая схема: [PLATFORMS.md](./PLATFORMS.md).
 
-| Режим | Где | Технология |
-|-------|-----|------------|
-| Камера (APK) | Холодильник → «Сканировать камерой» | Google ML Kit (`@capacitor-mlkit/barcode-scanning`) |
-| Камера (браузер/PWA) | То же | `html5-qrcode` + камера |
-| Фото | «Штрихкод с фото» | ML Kit (APK) или html5-qrcode (web) |
+## Важно
 
-Поддерживаются **EAN-13, EAN-8, UPC** и линейные коды (CODE-128). Название товара подставляется из [Open Food Facts](https://world.openfoodfacts.org/) (бесплатно).
+Приложения Capacitor — это **клиент** к серверу jFreeze. Сервер должен быть доступен:
 
-## Сборка Android
+- **Разработка:** ПК с `npm run dev` в той же Wi‑Fi сети
+- **Дом:** мини-ПК / VPS с jFreeze 24/7
+- **Windows:** программа jFreeze на домашнем ПК + URL в настройках телефона
+
+В приложении: **Настройки → Сервер jFreeze** → URL → Проверить → Сохранить.
+
+## Android (телефон и планшет)
+
+| Режим | Технология |
+|-------|------------|
+| UI | Capacitor WebView |
+| Сканер камеры | Google ML Kit |
+| Сканер в браузере | html5-qrcode (PWA) |
+
+```powershell
+cd apps/web
+npm install
+npm run dev
+
+# Эмулятор Android Studio:
+$env:CAPACITOR_SERVER_URL="http://10.0.2.2:3000"
+# Реальное устройство (замените IP):
+# $env:CAPACITOR_SERVER_URL="http://192.168.1.10:3000"
+
+npx cap add android
+npm run cap:sync
+npm run cap:android
+```
+
+Разрешения: камера (сканер, фото чеков).
+
+## iPhone и iPad
+
+Требуется **macOS** и **Xcode**.
 
 ```bash
 cd apps/web
 npm install
-npm install -D @capacitor/cli @capacitor/android
+npm run dev
 
-# Dev: приложение грузит UI с локального сервера
-$env:CAPACITOR_SERVER_URL="http://10.0.2.2:3000"   # эмулятор
-# или http://192.168.x.x:3000 — IP вашего ПК в Wi‑Fi
-
-npm run dev   # в отдельном терминале
-
-npx cap add android    # один раз
-npx cap sync
-npx cap open android
+export CAPACITOR_SERVER_URL=http://localhost:3000
+npx cap add ios
+npm run cap:sync
+npm run cap:ios
 ```
 
-В Android Studio: Run на устройстве. Разрешите **камеру** при первом сканировании.
+На iPhone/iPad в Safari откройте тот же URL сервера в настройках приложения (IP ПК в Wi‑Fi).
 
-## Разрешения (Android)
+Сканер: в нативной сборке — камера через web API / html5-qrcode; ML Kit только на Android.
 
-Плагин ML Kit добавляет в манифест при `cap sync`:
+## PWA без магазина
 
-- `CAMERA` — сканер и фото чеков
-- Google Play Services — модуль сканера (устанавливается при первом запуске)
+Chrome/Safari → сайт → «На экран Домой». Работает на iOS и Android без App Store.
 
-## Без нативной сборки
+## Сборка на продакшен URL
 
-PWA в Chrome на телефоне: вкладка **Холодильник** → сканер в браузере (нужен HTTPS или localhost).
+```bash
+export CAPACITOR_PRODUCTION_URL=https://your-vps.example.com
+npm run cap:sync
+```
+
+Затем сборка в Android Studio / Xcode.

@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main, "release/**"]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build web
+        run: npm run build
+
+      - name: Install Playwright
+        run: npx playwright install chromium --with-deps
+        working-directory: apps/web
+
+      - name: E2E smoke
+        run: npm run test:e2e
+        env:
+          CI: "true"

@@ -1,0 +1,43 @@
+{
+  "name": "jfreeze-desktop",
+  "version": "0.2.0-pre-alpha",
+  "private": true,
+  "description": "jFreeze для Windows — встроенный локальный сервер",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "pack": "node ../web/scripts/prepare-desktop-bundle.mjs && electron-builder --dir",
+    "dist": "node ../web/scripts/prepare-desktop-bundle.mjs && electron-builder --win"
+  },
+  "build": {
+    "appId": "ru.jfreeze.desktop",
+    "productName": "jFreeze",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "server-bundle",
+        "to": "server",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "artifactName": "jFreeze-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "language": "1049"
+    }
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}

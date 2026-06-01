@@ -1,18 +1,27 @@
 {
   "name": "jfreeze",
-  "version": "0.1.0-pre-alpha",
+  "version": "0.2.0-pre-alpha",
   "private": true,
-  "description": "jFreeze pre-alpha 0.1 — умный холодильник и корзина (только бесплатные инструменты, см. docs/FREE_STACK.md)",
+  "description": "jFreeze pre-alpha 0.2 — умный холодильник, заказы, IMAP, ОФД, Telegram (docs/FREE_STACK.md)",
   "scripts": {
     "dev": "npm run dev --workspace=apps/web",
     "build": "npm run build --workspace=apps/web",
+    "build:desktop": "npm run build --workspace=apps/web && node apps/web/scripts/prepare-desktop-bundle.mjs",
+    "desktop": "npm run start --workspace=apps/desktop",
+    "desktop:dev": "node scripts/desktop-dev.mjs",
     "start": "npm run start --workspace=apps/web",
     "test": "npm run test --workspace=apps/web",
     "test:e2e": "npm run test:e2e --workspace=apps/web",
+    "verify": "node scripts/verify-release.mjs",
     "db:push": "npm run db:push --workspace=apps/web",
-    "lint": "npm run lint --workspace=apps/web"
+    "lint": "npm run lint --workspace=apps/web",
+    "bot:telegram": "npm run bot:telegram --workspace=apps/web",
+    "reminders:daily": "node scripts/daily-reminders.mjs",
+    "imap:sync": "node scripts/imap-sync.mjs",
+    "cap:sync": "npm run cap:sync --workspace=apps/web"
   },
   "workspaces": [
-    "apps/web"
+    "apps/web",
+    "apps/desktop"
   ]
 }

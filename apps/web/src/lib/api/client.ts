@@ -1,3 +1,5 @@
+import { resolveApiUrl } from "./base-url";
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -12,7 +14,7 @@ export async function apiFetch<T>(
   url: string,
   init?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(url, init);
+  const res = await fetch(resolveApiUrl(url), init);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new ApiError(
@@ -25,6 +27,11 @@ export async function apiFetch<T>(
 
 export async function refreshCart(): Promise<void> {
   await apiFetch("/api/cart", { method: "POST" });
+}
+
+/** fetch с учётом базового URL (Capacitor, multipart). */
+export function apiFetchRaw(url: string, init?: RequestInit) {
+  return fetch(resolveApiUrl(url), init);
 }
 
 export async function importOrders(body: Record<string, unknown>) {

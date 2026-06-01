@@ -83,6 +83,18 @@ export const userSettings = sqliteTable("user_settings", {
   smartFridgeUrl: text("smart_fridge_url"),
   smartFridgeToken: text("smart_fridge_token"),
   cartPreferencesJson: text("cart_preferences_json"),
+  storeConnectionsJson: text("store_connections_json"),
+  imapConfigJson: text("imap_config_json"),
+  lastImapSyncAt: integer("last_imap_sync_at", { mode: "timestamp" }),
+  lastExpiryNotifyAt: integer("last_expiry_notify_at", { mode: "timestamp" }),
+});
+
+export const sourceImports = sqliteTable("source_imports", {
+  contentHash: text("content_hash").primaryKey(),
+  channel: text("channel").notNull(),
+  storeId: text("store_id").notNull(),
+  orderIdsJson: text("order_ids_json"),
+  importedAt: integer("imported_at", { mode: "timestamp" }).notNull(),
 });
 
 export const profiles = sqliteTable("profiles", {
@@ -95,6 +107,39 @@ export const pushSubscriptions = sqliteTable("push_subscriptions", {
   id: text("id").primaryKey(),
   endpoint: text("endpoint").notNull(),
   keysJson: text("keys_json").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+/** Код привязки чата Telegram (6 символов, ~15 мин) */
+export const telegramLinkTokens = sqliteTable("telegram_link_tokens", {
+  token: text("token").primaryKey(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+/** Привязанные чаты Telegram к инстансу jFreeze */
+export const telegramChats = sqliteTable("telegram_chats", {
+  chatId: text("chat_id").primaryKey(),
+  profileId: text("profile_id").notNull().default("default"),
+  displayName: text("display_name"),
+  username: text("username"),
+  notifyExpiry: integer("notify_expiry", { mode: "boolean" }).notNull().default(true),
+  notifyOrders: integer("notify_orders", { mode: "boolean" }).notNull().default(true),
+  notifyFamily: integer("notify_family", { mode: "boolean" }).notNull().default(true),
+  linkedAt: integer("linked_at", { mode: "timestamp" }).notNull(),
+});
+
+/** Фото и файлы из Telegram — общая лента семьи */
+export const familyInbox = sqliteTable("family_inbox", {
+  id: text("id").primaryKey(),
+  profileId: text("profile_id").notNull().default("default"),
+  chatId: text("chat_id").notNull(),
+  uploaderName: text("uploader_name"),
+  filePath: text("file_path").notNull(),
+  fileName: text("file_name"),
+  mimeType: text("mime_type"),
+  kind: text("kind").notNull(),
+  caption: text("caption"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 

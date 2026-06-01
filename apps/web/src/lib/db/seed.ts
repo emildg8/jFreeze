@@ -9,6 +9,10 @@ const DEFAULT_STORES = [
   { id: "samokat", displayName: "Самокат", availability: "beta" },
   { id: "pyaterochka", displayName: "Пятёрочка", availability: "beta" },
   { id: "perekrestok", displayName: "Перекрёсток", availability: "beta" },
+  { id: "wildberries", displayName: "Wildberries", availability: "beta" },
+  { id: "yandex_lavka", displayName: "Яндекс Лавка", availability: "beta" },
+  { id: "magnit", displayName: "Магнит", availability: "beta" },
+  { id: "receipt", displayName: "Чек / ОФД", availability: "active" },
 ] as const;
 
 export function ensureSeedData() {

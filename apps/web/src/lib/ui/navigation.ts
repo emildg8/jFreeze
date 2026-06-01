@@ -23,6 +23,9 @@ export const SECONDARY_ROUTES: Record<
   { title: string; backHref: string }
 > = {
   "/settings": { title: "Настройки", backHref: "/more" },
+  "/sources": { title: "Источники", backHref: "/more" },
+  "/export": { title: "Экспорт", backHref: "/more" },
+  "/platforms": { title: "Платформы", backHref: "/more" },
   "/storage": { title: "Хранение", backHref: "/more" },
   "/family": { title: "Семья", backHref: "/more" },
   "/pro": { title: "Pro", backHref: "/more" },

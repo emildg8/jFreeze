@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { listInventory } from "@/lib/services/inventory";
-import { listOrdersWithItems } from "@/lib/services/orders";
+import { getWeeklySpendSummary, listOrdersWithItems } from "@/lib/services/orders";
+import { maybeRunImapAutoSync } from "@/lib/services/store-sources";
 import { listCartSuggestions, generateCartSuggestions } from "@/lib/services/cart";
 import { getSettings } from "@/lib/services/settings";
 import { getExpirySummary } from "@/lib/services/expiry";
+import { runRemindersTick } from "@/lib/reminders/tick";
+import { isTelegramConfigured } from "@/lib/telegram/config";
 
 export async function GET() {
   try {
+    if (isTelegramConfigured()) {
+      void runRemindersTick().catch((e) => console.error("reminders tick", e));
+    }
+    void maybeRunImapAutoSync().catch((e) => console.error("imap auto sync", e));
     const inventory = listInventory();
     const orders = listOrdersWithItems();
     let suggestions = listCartSuggestions();
@@ -20,6 +27,7 @@ export async function GET() {
       inventoryCount: inventory.length,
       orderCount: orders.length,
       cartCount: suggestions.length,
+      weekly: getWeeklySpendSummary(),
       expiry: getExpirySummary(),
       settings: {
         onboardingDone: settings.onboardingDone,

@@ -1,4 +1,5 @@
-const serverUrl = process.env.CAPACITOR_SERVER_URL;
+const serverUrl =
+  process.env.CAPACITOR_SERVER_URL || process.env.CAPACITOR_PRODUCTION_URL;
 
 /** @type {import('@capacitor/cli').CapacitorConfig} */
 const config = {
@@ -10,9 +11,13 @@ const config = {
         server: {
           url: serverUrl,
           cleartext: String(serverUrl).startsWith("http://"),
+          androidScheme: "http",
         },
       }
     : {}),
+  ios: {
+    contentInset: "automatic",
+  },
   plugins: {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],

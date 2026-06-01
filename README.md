@@ -1,83 +1,82 @@
-# jFreeze — pre-alpha 0.1
+# jFreeze — pre-alpha 0.2
 
-> **Статус:** pre-alpha · ветка `release/pre-alpha-0.1` · не для продакшена без бэкапов данных.
+> Умный холодильник, история заказов, корзина, семья, Telegram.  
+> **Платформы:** Web/PWA · Windows · Android · iOS · Telegram-бот.
 
-> **Инструменты:** только бесплатные для разработки и запуска — см. [docs/FREE_STACK.md](docs/FREE_STACK.md). Платные API (OpenAI и т.д.) — **опционально**, по вашему ключу.
+> Инструменты: [docs/FREE_STACK.md](docs/FREE_STACK.md) · Платформы: [docs/PLATFORMS.md](docs/PLATFORMS.md) · **Релиз:** [docs/RELEASE.md](docs/RELEASE.md)
 
-Умный помощник для покупок: история заказов, холодильник, **умная корзина** (цена / качество / состав, бюджет, без бакалеи), AI-совет по корзине, план расстановки в холодильнике, срок годности, семейные профили.
-
-### Сценарий «умная корзина»
-
-1. Загрузите заказы (демо, CSV, **чек по фото/файлу/почте**, вручную) и заполните **Холодильник**.
-2. На **Корзина** задайте приоритет, бюджет, фильтры → **Собрать умную корзину**.
-3. AI-совет — только если включили и указали свой ключ OpenAI (опционально, платный у провайдера).
-4. На **Холодильник** — блок **Расстановка** (полки, температура, сроки).
-
-## Быстрый старт
+## Быстрый старт (веб)
 
 ```bash
-git clone -b release/pre-alpha-0.1 https://github.com/emildg8/jFreeze.git
+git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
 cd jFreeze
 npm install
-cd apps/web
-cp .env.example .env.local   # можно оставить пустым — полностью бесплатный режим
+cp apps/web/.env.example apps/web/.env.local
 npm run dev
 ```
 
-Из корня монорепо: `npm run dev` (тот же dev-сервер).
+http://localhost:3000
 
-Откройте http://localhost:3000
-
-## Качество
+## Проверка перед релизом
 
 ```bash
-npm test          # unit (14 тестов)
-npm run test:e2e  # e2e smoke
-npm run lint
-npm run build
+npm run verify
 ```
 
-## Архитектура (кратко)
+Lint · unit · production build · e2e smoke.
+
+## Платформы
+
+| Канал | Команда / документ |
+|-------|-------------------|
+| **Веб / PWA** | `npm run dev` |
+| **Windows** | `npm run build:desktop` → `apps/desktop` → `npm run dist` |
+| **Android / iOS** | [docs/MOBILE.md](docs/MOBILE.md) |
+| **Telegram** | [docs/TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) |
+
+В приложении: **Ещё → Все платформы**.
+
+## Функции (0.2)
+
+| Область | Возможности |
+|---------|-------------|
+| **Заказы** | Демо, CSV, чеки, **QR ОФД**, почта/SMS, **IMAP**, экспорт Excel |
+| **Холодильник** | Инвентарь, фото, штрихкод, сроки, план полок |
+| **Корзина** | Умный подбор, AI (BYOK), шаринг списка |
+| **Семья** | Профили, Telegram-лента файлов |
+| **Фон** | `npm run reminders:daily` · `npm run imap:sync` |
+
+Документы: [INTEGRATIONS.md](docs/INTEGRATIONS.md) · [IMAP.md](docs/IMAP.md) · [OFD.md](docs/OFD.md)
+
+## Cron / сервер
+
+```bash
+# Telegram: срок годности (сервер должен быть запущен)
+npm run reminders:daily
+
+# Почта IMAP (если настроен интервал в «Источники»)
+npm run imap:sync
+```
+
+Опционально: `CRON_SECRET`, `TELEGRAM_BOT_TOKEN`, `PROVERKA_CHEKA_TOKEN` — см. `apps/web/.env.example`.
+
+## Архитектура
 
 | Слой | Путь |
 |------|------|
-| UI | `src/app/*`, `src/components/*` |
-| API | `src/app/api/*` |
-| Бизнес-логика | `src/lib/services/*`, `src/lib/cart/*` |
-| Магазины | `src/connectors/*` |
-| Данные | SQLite + Drizzle (`data/jfreeze.db`) |
+| UI | `apps/web/src/app/*` |
+| API | `apps/web/src/app/api/*` |
+| Desktop | `apps/desktop/` (Electron) |
+| Данные | SQLite `apps/web/data/jfreeze.db` |
 
-Общий клиент запросов: `src/lib/api/client.ts` (`apiFetch`, `importOrders`, `refreshCart`).
+## Версии
 
-Единый UI: `docs/UI.md`, компоненты `Screen` / `Section` / `Panel`, верхняя панель и нижняя навигация.
+| Версия | Ветка |
+|--------|--------|
+| **0.2.0-pre-alpha** (текущая) | `release/pre-alpha-0.2` |
+| 0.1.0-pre-alpha | `release/pre-alpha-0.1` |
 
-## Переменные окружения
-
-Все опциональны. Подробно: [docs/FREE_STACK.md](docs/FREE_STACK.md).
-
-| Переменная | Назначение | Стоимость |
-|------------|------------|-----------|
-| `DATABASE_URL` | Путь к SQLite (локально) | $0 |
-| `OPENAI_API_KEY` | AI-фото / совет корзины | Pay-as-you-go у OpenAI, **не обязателен** |
-| `CAPACITOR_SERVER_URL` | URL для Android (Capacitor) | $0 |
-
-## Штрихкоды (мобильное)
-
-На **Холодильник**: сканер камеры (ML Kit в APK) и чтение с фото. В браузере — камера через PWA. Подробнее: [docs/MOBILE.md](docs/MOBILE.md).
-
-## Android
-
-```bash
-cd apps/web
-npm install
-npm install -D @capacitor/cli @capacitor/android
-npm run dev
-# в другом терминале, эмулятор:
-$env:CAPACITOR_SERVER_URL="http://10.0.2.2:3000"
-npx cap add android
-npm run cap:sync
-npm run cap:android
-```
+История: [CHANGELOG.md](CHANGELOG.md)
 
 ## Лицензия
 

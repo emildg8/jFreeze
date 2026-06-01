@@ -1,0 +1,86 @@
+{
+  "молоко": {
+    "category": "молочные",
+    "compositionTip": "Состав: молоко нормализованное; лучше без растительных жиров. Срок 5–7 дн.",
+    "qualityTip": "Выбирайте 2.5–3.2% по вкусу; проверьте дату и целостность упаковки.",
+    "priceTier": "medium",
+    "healthScore": 7
+  },
+  "хлеб": {
+    "category": "выпечка",
+    "compositionTip": "Меньше улучшителей — короче срок. Цельнозерновой — больше клетчатки.",
+    "qualityTip": "Свежий хлеб: упругая мякоть, без затхлости.",
+    "priceTier": "low",
+    "healthScore": 4
+  },
+  "яйца": {
+    "category": "молочные",
+    "compositionTip": "Категория С0/С1; хранить в холодильнике.",
+    "qualityTip": "Целая скорлупа, без трещин.",
+    "priceTier": "medium",
+    "healthScore": 8
+  },
+  "сыр": {
+    "category": "молочные",
+    "compositionTip": "Смотрите % жира и наличие растительных заменителей молочного жира.",
+    "qualityTip": "Без плесени, равномерный цвет.",
+    "priceTier": "medium",
+    "healthScore": 6
+  },
+  "йогурт": {
+    "category": "молочные",
+    "compositionTip": "Натуральный: молоко + закваска; избегайте лишнего сахара.",
+    "qualityTip": "Короткий состав — обычно лучше.",
+    "priceTier": "medium",
+    "healthScore": 7
+  },
+  "курица": {
+    "category": "мясо",
+    "compositionTip": "100% мясо птицы; без лишней влаги в упаковке.",
+    "qualityTip": "Ровный цвет, без запаха; готовить в срок.",
+    "priceTier": "medium",
+    "healthScore": 8
+  },
+  "помидоры": {
+    "category": "овощи",
+    "compositionTip": "Без обработки; сезонные дешевле и вкуснее.",
+    "qualityTip": "Плотные, без мягких пятен.",
+    "priceTier": "low",
+    "healthScore": 9
+  },
+  "огурцы": {
+    "category": "овощи",
+    "compositionTip": "Свежие; для салатов — средний размер.",
+    "qualityTip": "Хруст при лёгком нажатии.",
+    "priceTier": "low",
+    "healthScore": 9
+  },
+  "бананы": {
+    "category": "фрукты",
+    "compositionTip": "Без обработки; спелые — больше сахара, зелёные дольше хранятся.",
+    "qualityTip": "Без чёрных пятен на кожуре (или слегка — для смузи).",
+    "priceTier": "low",
+    "healthScore": 7
+  },
+  "масло": {
+    "category": "молочные",
+    "compositionTip": "82.5% жирности; состав — сливки (масло).",
+    "qualityTip": "Проверьте срок; хранить в холоде.",
+    "priceTier": "high",
+    "healthScore": 4
+  },
+  "гречка": {
+    "category": "бакалея",
+    "compositionTip": "Одна крупа в составе — идеально.",
+    "qualityTip": "Сорт «ГОСТ» или цельная.",
+    "priceTier": "low",
+    "healthScore": 9
+  },
+  "мороженое": {
+    "category": "заморозка",
+    "compositionTip": "Молоко/сливки в начале состава лучше, чем вода и сироп.",
+    "qualityTip": "Без повторной заморозки.",
+    "priceTier": "medium",
+    "healthScore": 3
+  }
+}

@@ -36,7 +36,7 @@ IDE: VS Code, Cursor, Neovim — на выбор, без требований к
 ## Запуск у себя (бесплатно)
 
 ```bash
-git clone -b release/pre-alpha-0.1 https://github.com/emildg8/jFreeze.git
+git clone -b release/pre-alpha-0.2 https://github.com/emildg8/jFreeze.git
 cd jFreeze && npm install
 cd apps/web && cp .env.example .env.local && npm run dev
 ```
@@ -61,13 +61,14 @@ cd apps/web && cp .env.example .env.local && npm run dev
 
 | Функция | Бесплатный режим |
 |---------|------------------|
-| Заказы | Демо, CSV, ручной ввод, **чеки** (фото, PDF, .eml, текст из почты) |
+| Заказы | Демо, CSV, ручной ввод, **чеки**, **источники**, **экспорт** Excel/CSV/JSON |
 | Умная корзина | Правила + подсказки из `product-hints.ru.json` |
 | Фото холодильника | `HeuristicVisionProvider` (без сети) |
 | Расстановка | `storage-guide.ru.json` |
 | Срок годности | Локальные напоминания в UI |
 | Семья (1 профиль) | `default` без Pro |
 | Push (PWA) | Web Push API, без платного FCM** |
+| Telegram-бот | Bot API ($0), polling или webhook — [TELEGRAM_BOT.md](./TELEGRAM_BOT.md) |
 | Умный холодильник | [Home Assistant](https://www.home-assistant.io/) (self-host, бесплатно) |
 
 \*\* Для простого PWA достаточно браузерных уведомлений; Firebase — не обязателен.

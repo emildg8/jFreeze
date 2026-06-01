@@ -1,0 +1,302 @@
+[
+  {
+    "id": "milk",
+    "name": "Молоко",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Верхняя полка холодильника",
+    "shelfLifeDays": 5,
+    "tips": "Держите в закрытой бутылке, не на дверце — там теплее.",
+    "neighbors": "Не рядом с сильно пахнущими продуктами"
+  },
+  {
+    "id": "eggs",
+    "name": "Яйца",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Средняя полка в заводской упаковке",
+    "shelfLifeDays": 28,
+    "tips": "Острым концом вниз. Не мойте перед хранением.",
+    "neighbors": "Отдельно от сырого мяса"
+  },
+  {
+    "id": "cheese",
+    "name": "Сыр",
+    "category": "молочные",
+    "temperature": "2–6°C",
+    "shelf": "Средняя или нижняя полка, в контейнере",
+    "shelfLifeDays": 14,
+    "tips": "Заверните в пергамент, затем в контейнер.",
+    "neighbors": "Не рядом с рыбой"
+  },
+  {
+    "id": "yogurt",
+    "name": "Йогурт",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Средняя полка",
+    "shelfLifeDays": 14,
+    "tips": "Соблюдайте срок на упаковке после вскрытия.",
+    "neighbors": "—"
+  },
+  {
+    "id": "butter",
+    "name": "Масло сливочное",
+    "category": "молочные",
+    "temperature": "2–6°C",
+    "shelf": "Дверца или верхняя полка",
+    "shelfLifeDays": 30,
+    "tips": "Можно заморозить на 2–3 месяца.",
+    "neighbors": "—"
+  },
+  {
+    "id": "meat-fresh",
+    "name": "Свежее мясо",
+    "category": "мясо",
+    "temperature": "0–2°C",
+    "shelf": "Нижняя полка (самая холодная)",
+    "shelfLifeDays": 3,
+    "tips": "Храните в закрытом контейнере на тарелке.",
+    "neighbors": "Отдельно от готовых блюд"
+  },
+  {
+    "id": "chicken",
+    "name": "Курица",
+    "category": "мясо",
+    "temperature": "0–2°C",
+    "shelf": "Нижняя полка",
+    "shelfLifeDays": 2,
+    "tips": "Используйте в первую очередь. Заморозка до −18°C.",
+    "neighbors": "Не выше готовой еды"
+  },
+  {
+    "id": "fish",
+    "name": "Рыба",
+    "category": "мясо",
+    "temperature": "0–2°C",
+    "shelf": "Нижняя полка в герметичной упаковке",
+    "shelfLifeDays": 2,
+    "tips": "Готовьте в день покупки или заморозите.",
+    "neighbors": "Изолировать от других продуктов"
+  },
+  {
+    "id": "vegetables",
+    "name": "Овощи",
+    "category": "овощи",
+    "temperature": "4–8°C",
+    "shelf": "Овощной ящик",
+    "shelfLifeDays": 7,
+    "tips": "Не мойте перед хранением — влага ускоряет порчу.",
+    "neighbors": "Не с фруктами выделяющими этилен"
+  },
+  {
+    "id": "tomatoes",
+    "name": "Помидоры",
+    "category": "овощи",
+    "temperature": "8–12°C",
+    "shelf": "Овощной ящик, не в морозилку",
+    "shelfLifeDays": 7,
+    "tips": "В холодильнике теряют вкус — лучше съесть быстро.",
+    "neighbors": "—"
+  },
+  {
+    "id": "cucumbers",
+    "name": "Огурцы",
+    "category": "овощи",
+    "temperature": "8–10°C",
+    "shelf": "Овощной ящик",
+    "shelfLifeDays": 5,
+    "tips": "Ниже 4°C становятся водянистыми.",
+    "neighbors": "—"
+  },
+  {
+    "id": "apples",
+    "name": "Яблоки",
+    "category": "фрукты",
+    "temperature": "2–4°C",
+    "shelf": "Овощной ящик или нижняя полка",
+    "shelfLifeDays": 30,
+    "tips": "Выделяют этилен — храните отдельно от зелени.",
+    "neighbors": "Не с морковью и салатом"
+  },
+  {
+    "id": "bananas",
+    "name": "Бананы",
+    "category": "фрукты",
+    "temperature": "12–15°C",
+    "shelf": "Стол или верхняя полка, не в морозилку",
+    "shelfLifeDays": 5,
+    "tips": "В холодильнике кожура темнеет, мякоть нормальная.",
+    "neighbors": "—"
+  },
+  {
+    "id": "berries",
+    "name": "Ягоды",
+    "category": "фрукты",
+    "temperature": "2–4°C",
+    "shelf": "Средняя полка, не мыть до еды",
+    "shelfLifeDays": 3,
+    "tips": "В один слой на бумажном полотенце.",
+    "neighbors": "—"
+  },
+  {
+    "id": "bread",
+    "name": "Хлеб",
+    "category": "выпечка",
+    "temperature": "комнатная / 4°C",
+    "shelf": "Верхняя полка или хлебница",
+    "shelfLifeDays": 3,
+    "tips": "В холодильнике черствеет быстрее — заморозка лучше.",
+    "neighbors": "—"
+  },
+  {
+    "id": "leftovers",
+    "name": "Готовые блюда",
+    "category": "готовое",
+    "temperature": "2–4°C",
+    "shelf": "Верхняя полка в контейнере",
+    "shelfLifeDays": 3,
+    "tips": "Остудите до комнатной перед установкой.",
+    "neighbors": "Выше сырого мяса"
+  },
+  {
+    "id": "frozen-veg",
+    "name": "Замороженные овощи",
+    "category": "заморозка",
+    "temperature": "−18°C",
+    "shelf": "Морозилка, средний ящик",
+    "shelfLifeDays": 180,
+    "tips": "Не размораживать повторно.",
+    "neighbors": "—"
+  },
+  {
+    "id": "ice-cream",
+    "name": "Мороженое",
+    "category": "заморозка",
+    "temperature": "−18°C",
+    "shelf": "Морозилка, задняя часть",
+    "shelfLifeDays": 60,
+    "tips": "Держите глубоко — меньше перепадов температуры.",
+    "neighbors": "—"
+  },
+  {
+    "id": "dumplings",
+    "name": "Пельмени",
+    "category": "заморозка",
+    "temperature": "−18°C",
+    "shelf": "Морозилка",
+    "shelfLifeDays": 90,
+    "tips": "Герметичная упаковка от окисления.",
+    "neighbors": "—"
+  },
+  {
+    "id": "sausages",
+    "name": "Колбаса",
+    "category": "мясо",
+    "temperature": "2–4°C",
+    "shelf": "Средняя полка после вскрытия",
+    "shelfLifeDays": 5,
+    "tips": "Завязать пакет или переложить в контейнер.",
+    "neighbors": "—"
+  },
+  {
+    "id": "milk-opened",
+    "name": "Молоко (вскрытое)",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Верхняя полка",
+    "shelfLifeDays": 3,
+    "tips": "Пахнет кисло — выбросить.",
+    "neighbors": "—"
+  },
+  {
+    "id": "cottage",
+    "name": "Творог",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Средняя полка",
+    "shelfLifeDays": 5,
+    "tips": "В заводской упаковке до срока.",
+    "neighbors": "—"
+  },
+  {
+    "id": "greens",
+    "name": "Зелень",
+    "category": "овощи",
+    "temperature": "2–4°C",
+    "shelf": "Овощной ящик в бумаге",
+    "shelfLifeDays": 5,
+    "tips": "Салфетка впитывает влагу.",
+    "neighbors": "Подальше от яблок"
+  },
+  {
+    "id": "carrots",
+    "name": "Морковь",
+    "category": "овощи",
+    "temperature": "2–4°C",
+    "shelf": "Овощной ящик",
+    "shelfLifeDays": 21,
+    "tips": "Уберите ботву — тянет влагу.",
+    "neighbors": "—"
+  },
+  {
+    "id": "potatoes",
+    "name": "Картофель",
+    "category": "овощи",
+    "temperature": "6–10°C",
+    "shelf": "Овощной ящик, темно",
+    "shelfLifeDays": 14,
+    "tips": "Не в морозилку — крахмал сладеет.",
+    "neighbors": "—"
+  },
+  {
+    "id": "sauce",
+    "name": "Соусы открытые",
+    "category": "прочее",
+    "temperature": "2–4°C",
+    "shelf": "Дверца",
+    "shelfLifeDays": 30,
+    "tips": "Смотрите маркировку «после вскрытия».",
+    "neighbors": "—"
+  },
+  {
+    "id": "juice",
+    "name": "Сок",
+    "category": "напитки",
+    "temperature": "2–4°C",
+    "shelf": "Дверца или верхняя полка",
+    "shelfLifeDays": 7,
+    "tips": "После вскрытия 2–3 дня.",
+    "neighbors": "—"
+  },
+  {
+    "id": "cream",
+    "name": "Сливки",
+    "category": "молочные",
+    "temperature": "2–4°C",
+    "shelf": "Верхняя полка",
+    "shelfLifeDays": 3,
+    "tips": "Использовать быстро после вскрытия.",
+    "neighbors": "—"
+  },
+  {
+    "id": "minced",
+    "name": "Фарш",
+    "category": "мясо",
+    "temperature": "0–2°C",
+    "shelf": "Нижняя полка",
+    "shelfLifeDays": 1,
+    "tips": "Приготовить в день покупки или заморозить порциями.",
+    "neighbors": "Отдельный контейнер"
+  },
+  {
+    "id": "shrimp",
+    "name": "Креветки",
+    "category": "мясо",
+    "temperature": "−18°C / 0–2°C",
+    "shelf": "Морозилка или нижняя полка",
+    "shelfLifeDays": 2,
+    "tips": "Размораживать в холодильнике, не при комнатной.",
+    "neighbors": "—"
+  }
+]

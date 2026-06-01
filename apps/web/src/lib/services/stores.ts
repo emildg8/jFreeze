@@ -28,7 +28,7 @@ export async function syncStore(storeId: StoreId, sinceDays = 90) {
   if (connector.availability === "beta") {
     return {
       imported: 0,
-      message: `${connector.displayName}: импортируйте заказы через CSV в настройках (шаблон «${connector.displayName}»).`,
+      message: `${connector.displayName}: раздел «Источники» — почта (.eml), SMS банка/магазина или CSV в настройках.`,
     };
   }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { importOrders, refreshCart, ApiError } from "@/lib/api/client";
+import { apiFetch, importOrders, refreshCart, ApiError } from "@/lib/api/client";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
 import { StatusBanner } from "./ui/StatusBanner";
@@ -29,7 +29,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
     setLoading(true);
     setError(null);
     try {
-      await fetch("/api/settings", {
+      await apiFetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ onboardingDone: true }),
