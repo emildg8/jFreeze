@@ -16,7 +16,6 @@ import { apiFetch, ApiError } from "@/lib/api/client";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { SpendByCategoryPanel } from "@/components/SpendByCategoryPanel";
 import { HomeGuide } from "@/components/HomeGuide";
-import { UserTip } from "@/components/UserTip";
 
 interface Stats {
   inventoryCount: number;
@@ -34,6 +33,7 @@ interface Stats {
 export default function HomePage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -44,6 +44,15 @@ export default function HomePage() {
       setError(e instanceof ApiError ? e.message : "Ошибка загрузки");
     }
   }, []);
+
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
 
   useOnMount(() => {
     void load();
@@ -61,6 +70,8 @@ export default function HomePage() {
             ? "Pro · холодильник и умные покупки"
             : "Запасы, заказы и корзина в одном месте"
         }
+        onRefresh={() => void refresh()}
+        refreshing={refreshing}
       />
 
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
@@ -82,6 +93,7 @@ export default function HomePage() {
           label="В холодильнике"
           value={stats ? stats.inventoryCount : "…"}
           hint="позиций"
+          href="/fridge"
           className={!stats ? "animate-pulse opacity-70" : undefined}
         />
         <StatCard
@@ -89,11 +101,17 @@ export default function HomePage() {
           value={stats ? stats.cartCount : "…"}
           hint="в корзине"
           tone="brand"
+          href="/cart"
           className={!stats ? "animate-pulse opacity-70" : undefined}
         />
       </div>
 
-      <StatCard label="Заказов в истории" value={stats?.orderCount ?? 0} />
+      <StatCard
+        label="Заказов в истории"
+        value={stats?.orderCount ?? 0}
+        hint="нажмите для списка"
+        href="/orders"
+      />
 
       {stats &&
         stats.settings?.onboardingDone &&
@@ -144,14 +162,6 @@ export default function HomePage() {
           </LinkButton>
         </ActionBar>
       </Section>
-
-      {stats?.settings?.onboardingDone && (
-        <UserTip id="browser-extension" title="Чеки из браузера">
-          Установите расширение Chrome из папки{" "}
-          <code className="text-xs">extensions/browser</code> — на Gmail и Ozon
-          появится кнопка «→ jFreeze». Подробнее в «Ещё → Все платформы».
-        </UserTip>
-      )}
 
       <Section title="Магазины" description="Подключение и импорт заказов">
         <StoreChips />

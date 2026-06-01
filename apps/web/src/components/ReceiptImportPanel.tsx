@@ -33,6 +33,8 @@ interface ReceiptImportPanelProps {
   defaultTab?: Tab;
   /** Live-камера для QR ОФД. */
   showOfdCamera?: boolean;
+  /** Сразу открыть камеру QR. */
+  autoStartCamera?: boolean;
 }
 
 const ACCEPT =
@@ -42,6 +44,7 @@ export function ReceiptImportPanel({
   onImported,
   defaultTab = "file",
   showOfdCamera = false,
+  autoStartCamera = false,
 }: ReceiptImportPanelProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -173,6 +176,7 @@ export function ReceiptImportPanel({
     <Section
       title="Загрузить чек"
       description="ОФД QR, фото, PDF, CSV, письмо (.eml) или текст из почты"
+      className={pending ? "pb-36" : undefined}
     >
       <div id="ofd-qr-scratch" className="sr-only" aria-hidden />
       <SegmentedControl
@@ -230,6 +234,7 @@ export function ReceiptImportPanel({
           {showOfdCamera && (
             <OfdQrCameraPanel
               disabled={loading}
+              autoStart={autoStartCamera}
               onScanned={(payload) => {
                 setOfdQr(payload);
                 void parseOfdQrText(payload);
@@ -338,6 +343,29 @@ export function ReceiptImportPanel({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {pending && pending.items.length > 0 && (
+        <>
+        <div
+          className="fixed inset-x-0 z-[55] border-t border-sky-200 bg-white/98 px-4 py-3 shadow-[0_-8px_32px_rgba(15,23,42,0.12)] backdrop-blur-md bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom))]"
+          role="region"
+          aria-label="Подтверждение чека"
+        >
+          <p className="mb-2 text-sm font-medium text-slate-800">
+            {pending.items.length} поз. · {pending.kind}
+            {pending.totalRub != null && (
+              <span className="ml-1 tabular-nums text-sky-700">
+                ~{pending.totalRub} ₽
+              </span>
+            )}
+          </p>
+          <div className="flex gap-2">
+            <Button className="flex-1" disabled={loading} onClick={() => void confirmImport()}>
+              {loading ? "…" : "Сохранить в заказы"}
+            </Button>
+            <Button variant="ghost" onClick={() => setPending(null)}>
+              Отмена
+            </Button>
+          </div>
+        </div>
         <Panel className="mt-3">
           <p className="mb-2 text-sm font-medium text-slate-800">
             Проверьте позиции ({pending.kind})
@@ -397,6 +425,7 @@ export function ReceiptImportPanel({
             </Button>
           </div>
         </Panel>
+        </>
       )}
     </Section>
   );

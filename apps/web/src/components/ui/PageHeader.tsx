@@ -4,12 +4,16 @@ export function PageHeader({
   title,
   description,
   action,
+  onRefresh,
+  refreshing,
 }: {
   title?: string;
   description?: string;
   action?: ReactNode;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
-  if (!title && !description && !action) return null;
+  if (!title && !description && !action && !onRefresh) return null;
 
   return (
     <header className="flex items-start justify-between gap-3">
@@ -25,7 +29,21 @@ export function PageHeader({
           </p>
         )}
       </div>
-      {action}
+      <div className="flex shrink-0 items-center gap-1">
+        {onRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+            aria-label="Обновить"
+            title="Обновить"
+          >
+            <span className={refreshing ? "inline-block animate-spin" : ""}>↻</span>
+          </button>
+        )}
+        {action}
+      </div>
     </header>
   );
 }

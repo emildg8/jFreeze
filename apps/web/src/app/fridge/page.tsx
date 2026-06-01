@@ -16,6 +16,7 @@ import { StatusBanner } from "@/components/ui/StatusBanner";
 import { FridgeLayoutPanel } from "@/components/FridgeLayoutPanel";
 import { BarcodeScannerPanel } from "@/components/BarcodeScannerPanel";
 import { apiFetch, refreshCart, ApiError } from "@/lib/api/client";
+import { StickyFormBar } from "@/components/StickyFormBar";
 
 interface InventoryItem {
   id: string;
@@ -61,7 +62,8 @@ export default function FridgePage() {
 
   useOnMount(load);
 
-  async function addManual() {
+  async function addManual(e?: { preventDefault?: () => void }) {
+    e?.preventDefault?.();
     if (!name.trim()) return;
     setError(null);
     try {
@@ -122,7 +124,7 @@ export default function FridgePage() {
   const filtered = items.filter((i) => i.zone === zone);
 
   return (
-    <Screen>
+    <Screen className="pb-28">
       <PageHeader
         title="Холодильник"
         description="Фото, вручную и план расстановки · сроки для напоминаний"
@@ -193,56 +195,28 @@ export default function FridgePage() {
         </Panel>
       )}
 
-      <Section title="Добавить вручную">
-      <Panel>
-        <div className="flex flex-col gap-2">
-          {barcode && (
-            <p className="text-xs text-slate-500 tabular-nums">
-              Штрихкод: {barcode}
-            </p>
-          )}
-          <Input
-            placeholder="Название продукта"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              placeholder="Кол-во"
-              value={qty}
-              onChange={(e) => setQty(e.target.value)}
-            />
-            <Input
-              type="date"
-              value={expiry}
-              onChange={(e) => setExpiry(e.target.value)}
-              aria-label="Срок годности"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: "+3 дн.", days: 3 },
-              { label: "+7 дн.", days: 7 },
-              { label: "+14 дн.", days: 14 },
-              { label: "+30 дн.", days: 30 },
-            ].map(({ label, days }) => (
-              <button
-                key={days}
-                type="button"
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-sky-200"
-                onClick={() => {
-                  const d = new Date();
-                  d.setDate(d.getDate() + days);
-                  setExpiry(d.toISOString().slice(0, 10));
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <Button onClick={() => void addManual()}>Добавить</Button>
+      <Section title="Срок годности">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "+3 дн.", days: 3 },
+            { label: "+7 дн.", days: 7 },
+            { label: "+14 дн.", days: 14 },
+            { label: "+30 дн.", days: 30 },
+          ].map(({ label, days }) => (
+            <button
+              key={days}
+              type="button"
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-sky-200"
+              onClick={() => {
+                const d = new Date();
+                d.setDate(d.getDate() + days);
+                setExpiry(d.toISOString().slice(0, 10));
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      </Panel>
       </Section>
 
       <FridgeLayoutPanel />
@@ -257,6 +231,36 @@ export default function FridgePage() {
           />
         </div>
       )}
+
+      <StickyFormBar onSubmit={(e) => void addManual(e)}>
+        {barcode && (
+          <p className="text-xs text-slate-500 tabular-nums">Штрихкод: {barcode}</p>
+        )}
+        <Input
+          placeholder="Название — Enter для добавления"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoComplete="off"
+        />
+        <div className="grid grid-cols-[1fr_auto] gap-2">
+          <Input
+            placeholder="Кол-во"
+            value={qty}
+            onChange={(e) => setQty(e.target.value)}
+            inputMode="decimal"
+          />
+          <Button type="submit" className="px-6">
+            Добавить
+          </Button>
+        </div>
+        <Input
+          type="date"
+          value={expiry}
+          onChange={(e) => setExpiry(e.target.value)}
+          aria-label="Срок годности"
+          className="text-sm"
+        />
+      </StickyFormBar>
 
       <ul className="mt-4 space-y-2">
         {filtered.map((item) => (

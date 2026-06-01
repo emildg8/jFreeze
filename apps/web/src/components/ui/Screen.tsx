@@ -7,5 +7,5 @@ export function Screen({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`space-y-4 ${className}`}>{children}</div>;
+  return <div className={`space-y-4 pb-2 ${className}`}>{children}</div>;
 }

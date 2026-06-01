@@ -8,9 +8,15 @@ import { startWebQrScanner } from "@/lib/ofd/web-qr-scanner";
 interface OfdQrCameraPanelProps {
   disabled?: boolean;
   onScanned: (qrPayload: string) => void;
+  /** Открыть камеру сразу (например /orders?scan=1). */
+  autoStart?: boolean;
 }
 
-export function OfdQrCameraPanel({ disabled, onScanned }: OfdQrCameraPanelProps) {
+export function OfdQrCameraPanel({
+  disabled,
+  onScanned,
+  autoStart = false,
+}: OfdQrCameraPanelProps) {
   const regionId = useId().replace(/:/g, "");
   const scannerRef = useRef<{ stop: () => Promise<void> } | null>(null);
   const [open, setOpen] = useState(false);
@@ -27,6 +33,13 @@ export function OfdQrCameraPanel({ disabled, onScanned }: OfdQrCameraPanelProps)
       void scannerRef.current?.stop();
     };
   }, []);
+
+  useEffect(() => {
+    if (autoStart && !disabled && !open) {
+      void start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- только при входе с ?scan=1
+  }, [autoStart]);
 
   async function start() {
     setError(null);

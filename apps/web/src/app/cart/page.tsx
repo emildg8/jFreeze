@@ -121,11 +121,25 @@ export default function CartPage() {
 
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
 
-      <SmartCartPanel
-        initial={prefs}
-        loading={generating}
-        onGenerate={generateSmart}
-      />
+      <div className="pb-24">
+        <SmartCartPanel
+          initial={prefs}
+          loading={generating}
+          onGenerate={generateSmart}
+        />
+      </div>
+
+      <div className="fixed inset-x-0 z-[45] border-t border-slate-200/90 bg-white/95 px-4 py-3 shadow-[0_-8px_32px_rgba(15,23,42,0.08)] backdrop-blur-md bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom))]">
+        <div className="mx-auto max-w-lg md:max-w-2xl lg:max-w-3xl">
+          <Button
+            className="w-full"
+            disabled={generating}
+            onClick={() => void generateSmart(prefs)}
+          >
+            {generating ? "Собираю корзину…" : "Собрать умную корзину"}
+          </Button>
+        </div>
+      </div>
 
       {estimatedTotal != null && estimatedTotal > 0 && (
         <p className="mb-3 text-sm text-slate-600">
