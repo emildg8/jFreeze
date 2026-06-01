@@ -2,6 +2,11 @@ import type Database from "better-sqlite3";
 
 export function migrateColumns(sqlite: Database.Database) {
   const add = (table: string, column: string, definition: string) => {
+    const exists = sqlite
+      .prepare(`SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?`)
+      .get(table);
+    if (!exists) return;
+
     const cols = sqlite
       .prepare(`PRAGMA table_info(${table})`)
       .all() as Array<{ name: string }>;
@@ -34,7 +39,6 @@ export function migrateColumns(sqlite: Database.Database) {
   add("orders", "user_id", "TEXT NOT NULL DEFAULT 'default'");
   add("inventory_items", "user_id", "TEXT NOT NULL DEFAULT 'default'");
   add("cart_suggestions", "user_id", "TEXT NOT NULL DEFAULT 'default'");
-  add("profiles", "user_id", "TEXT NOT NULL DEFAULT 'default'");
 
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS auth_user (
@@ -131,4 +135,6 @@ export function migrateColumns(sqlite: Database.Database) {
       created_at INTEGER NOT NULL
     );
   `);
+
+  add("profiles", "user_id", "TEXT NOT NULL DEFAULT 'default'");
 }

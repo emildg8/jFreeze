@@ -8,6 +8,7 @@ import { migrateColumns } from "./migrate";
 const globalForDb = globalThis as unknown as {
   sqlite?: Database.Database;
   db?: ReturnType<typeof drizzle<typeof schema>>;
+  migrated?: boolean;
 };
 
 function resolveDbPath(): string {
@@ -48,6 +49,10 @@ export function getDb() {
     sqlite.pragma("foreign_keys = ON");
     globalForDb.sqlite = sqlite;
     globalForDb.db = drizzle(sqlite, { schema });
+  }
+  if (!globalForDb.migrated) {
+    runMigrations();
+    globalForDb.migrated = true;
   }
   return globalForDb.db;
 }
