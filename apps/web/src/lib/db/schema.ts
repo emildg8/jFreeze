@@ -39,6 +39,7 @@ export const inventoryItems = sqliteTable("inventory_items", {
   expiryAt: integer("expiry_at", { mode: "timestamp" }),
   source: text("source").notNull().default("manual"),
   photoId: text("photo_id"),
+  barcode: text("barcode"),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 

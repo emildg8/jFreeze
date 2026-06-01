@@ -17,6 +17,9 @@ const config = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
+    BarcodeScanner: {
+      formats: ["EAN_13", "EAN_8", "UPC_A", "UPC_E", "CODE_128"],
+    },
   },
 };
 

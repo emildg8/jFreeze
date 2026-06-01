@@ -15,6 +15,7 @@ export interface InventoryInput {
   expiryAt?: Date;
   source?: string;
   photoId?: string;
+  barcode?: string;
 }
 
 function activeProfileId() {
@@ -69,6 +70,7 @@ export function upsertInventoryItem(input: InventoryInput) {
         expiryAt: input.expiryAt ?? existing.expiryAt,
         updatedAt: new Date(),
         source: input.source ?? existing.source,
+        barcode: input.barcode ?? existing.barcode,
       })
       .where(eq(inventoryItems.id, existing.id))
       .run();
@@ -88,6 +90,7 @@ export function upsertInventoryItem(input: InventoryInput) {
       expiryAt: input.expiryAt,
       source: input.source ?? "manual",
       photoId: input.photoId,
+      barcode: input.barcode ?? null,
       updatedAt: new Date(),
     })
     .run();

@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { FridgeLayoutPanel } from "@/components/FridgeLayoutPanel";
+import { BarcodeScannerPanel } from "@/components/BarcodeScannerPanel";
 import { apiFetch, refreshCart, ApiError } from "@/lib/api/client";
 
 interface InventoryItem {
@@ -23,6 +24,7 @@ interface InventoryItem {
   unit: string | null;
   zone: string;
   expiryAt?: string | null;
+  barcode?: string | null;
 }
 
 interface PendingItem {
@@ -41,6 +43,7 @@ export default function FridgePage() {
   const [name, setName] = useState("");
   const [qty, setQty] = useState("1");
   const [expiry, setExpiry] = useState("");
+  const [barcode, setBarcode] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,11 +73,14 @@ export default function FridgePage() {
           qty: parseFloat(qty) || 1,
           zone,
           expiryAt: expiry || undefined,
+          barcode: barcode.trim() || undefined,
+          source: barcode ? "barcode" : undefined,
         }),
       });
       setName("");
       setQty("1");
       setExpiry("");
+      setBarcode("");
       await load();
       await refreshCart();
     } catch (e) {
@@ -133,6 +139,16 @@ export default function FridgePage() {
         onChange={setZone}
       />
 
+      <BarcodeScannerPanel
+        onDetected={(payload) => {
+          setBarcode(payload.barcode);
+          if (payload.productName) {
+            setName(payload.productName);
+          }
+          setError(null);
+        }}
+      />
+
       <UploadZone
         zone={zone}
         onComplete={(data) =>
@@ -180,6 +196,11 @@ export default function FridgePage() {
       <Section title="Добавить вручную">
       <Panel>
         <div className="flex flex-col gap-2">
+          {barcode && (
+            <p className="text-xs text-slate-500 tabular-nums">
+              Штрихкод: {barcode}
+            </p>
+          )}
           <Input
             placeholder="Название продукта"
             value={name}
@@ -224,6 +245,7 @@ export default function FridgePage() {
                 <p className="font-medium truncate">{item.name}</p>
                 <p className="text-xs text-slate-500 tabular-nums">
                   {item.qty} {item.unit}
+                  {item.barcode && ` · ${item.barcode}`}
                   {item.expiryAt &&
                     ` · до ${new Date(item.expiryAt).toLocaleDateString("ru-RU")}`}
                 </p>

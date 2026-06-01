@@ -27,6 +27,8 @@
 | [Git](https://git-scm.com/) + [GitHub](https://github.com/) | Версии, Issues, Releases | Бесплатно для public repo |
 | [Docker](https://www.docker.com/) (опционально) | `docker-compose.yml` | CE бесплатно |
 | [Capacitor](https://capacitorjs.com/) | Android-оболочка | MIT |
+| [@capacitor-mlkit/barcode-scanning](https://github.com/capawesome-team/capacitor-mlkit) | Сканер штрихкодов в APK | MIT |
+| [html5-qrcode](https://github.com/mebjas/html5-qrcode) | Сканер в браузере / фото | Apache-2.0 |
 | [Android Studio](https://developer.android.com/studio) | Сборка APK | Бесплатно |
 
 IDE: VS Code, Cursor, Neovim — на выбор, без требований к платным планам.

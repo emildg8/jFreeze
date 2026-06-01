@@ -14,8 +14,13 @@
     "cap:android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor-mlkit/barcode-scanning": "^6.2.0",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/filesystem": "^6.0.4",
     "better-sqlite3": "^12.10.0",
     "drizzle-orm": "^0.45.2",
+    "html5-qrcode": "^2.3.8",
     "next": "16.2.7",
     "pdf-parse": "^1.1.1",
     "react": "19.2.4",
@@ -23,6 +28,8 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",

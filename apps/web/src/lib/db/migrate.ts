@@ -26,6 +26,7 @@ export function migrateColumns(sqlite: Database.Database) {
   add("cart_suggestions", "est_price_rub", "REAL");
   add("cart_suggestions", "composition_tip", "TEXT");
   add("cart_suggestions", "quality_tip", "TEXT");
+  add("inventory_items", "barcode", "TEXT");
 
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS profiles (

@@ -61,10 +61,16 @@ npm run build
 | `OPENAI_API_KEY` | AI-фото / совет корзины | Pay-as-you-go у OpenAI, **не обязателен** |
 | `CAPACITOR_SERVER_URL` | URL для Android (Capacitor) | $0 |
 
+## Штрихкоды (мобильное)
+
+На **Холодильник**: сканер камеры (ML Kit в APK) и чтение с фото. В браузере — камера через PWA. Подробнее: [docs/MOBILE.md](docs/MOBILE.md).
+
 ## Android
 
 ```bash
-npm install @capacitor/core @capacitor/cli @capacitor/android
+cd apps/web
+npm install
+npm install -D @capacitor/cli @capacitor/android
 npm run dev
 # в другом терминале, эмулятор:
 $env:CAPACITOR_SERVER_URL="http://10.0.2.2:3000"

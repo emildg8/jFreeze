@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       zone: body.zone,
       expiryAt: body.expiryAt ? new Date(body.expiryAt) : undefined,
       source: body.source,
+      barcode: body.barcode,
     });
     return NextResponse.json({ id });
   } catch (e) {
