@@ -1,0 +1,14 @@
+services:
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - jfreeze-data:/app/data
+    environment:
+      - DATABASE_URL=/app/data/jfreeze.db
+
+volumes:
+  jfreeze-data:
