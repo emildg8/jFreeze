@@ -32,8 +32,14 @@ const links = [
   {
     href: "/platforms",
     label: "Все платформы",
-    description: "Web, Windows, Android, iOS, Telegram",
+    description: "Web, Windows, Android, iOS, Telegram, Chrome",
     icon: "📲",
+  },
+  {
+    href: "/orders",
+    label: "Расширение для браузера",
+    description: "Чеки из Gmail и Ozon — см. docs/BROWSER_EXTENSION.md",
+    icon: "🧩",
   },
   {
     href: "/export",
@@ -70,9 +76,9 @@ export default function MorePage() {
       </Section>
 
       <Panel variant="muted" className="text-sm text-slate-500">
-        <p className="font-semibold text-slate-800">jFreeze pre-alpha 0.2</p>
+        <p className="font-semibold text-slate-800">jFreeze 0.2.1-pre-alpha</p>
         <p className="mt-1 leading-relaxed">
-          IMAP · QR ОФД · Telegram · 5 платформ · бесплатный стек · AI опционально (BYOK)
+          IMAP · QR ОФД · расходы по категориям · Telegram · расширение Chrome · BYOK AI
         </p>
       </Panel>
     </Screen>

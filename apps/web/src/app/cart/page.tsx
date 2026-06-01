@@ -13,6 +13,7 @@ import { ShareCart } from "@/components/ShareCart";
 import { SmartCartPanel } from "@/components/SmartCartPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LinkButton } from "@/components/ui/LinkButton";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { formatCartList } from "@/lib/share/cart-share";
@@ -172,7 +173,15 @@ export default function CartPage() {
       {!loading && !generating && suggestions.length === 0 && (
         <EmptyState
           title="Корзина пуста"
-          description="Загрузите заказы, заполните холодильник и нажмите «Собрать умную корзину»."
+          description="Нужна история заказов и хотя бы несколько продуктов в холодильнике. Затем нажмите «Собрать умную корзину» выше."
+          action={
+            <div className="flex flex-col gap-2">
+              <LinkButton href="/orders">Добавить чек или заказы</LinkButton>
+              <LinkButton href="/fridge" variant="secondary">
+                Заполнить холодильник
+              </LinkButton>
+            </div>
+          }
         />
       )}
 

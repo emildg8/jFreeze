@@ -33,13 +33,22 @@ export function SpendByCategoryPanel({
   if (!byCategory.length || totalRub <= 0) return null;
 
   const max = byCategory[0]?.totalRub ?? 1;
+  const top = byCategory[0];
+  const topLabel = top ? CATEGORY_LABELS[top.category] ?? top.category : "";
+  const topPct = top ? Math.round((top.totalRub / totalRub) * 100) : 0;
 
   return (
     <Panel className="text-sm">
       <p className="font-medium text-slate-800">Расходы по категориям</p>
-      <p className="mb-3 text-xs text-slate-500">
+      <p className="mb-1 text-xs text-slate-500">
         За {days} дн. · оценка по сумме заказов и позициям
       </p>
+      {top && topPct >= 40 && (
+        <p className="mb-3 text-xs text-slate-600">
+          Больше всего ушло на <strong>{topLabel}</strong> — {topPct}% бюджета.
+        </p>
+      )}
+      {(!top || topPct < 40) && <div className="mb-3" />}
       <ul className="space-y-2.5">
         {byCategory.slice(0, 8).map((row) => {
           const pct = Math.round((row.totalRub / totalRub) * 100);

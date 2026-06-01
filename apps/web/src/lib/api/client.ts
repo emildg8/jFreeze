@@ -1,4 +1,5 @@
 import { resolveApiUrl } from "./base-url";
+import { friendlyApiMessage } from "./user-messages";
 
 export class ApiError extends Error {
   constructor(
@@ -14,13 +15,16 @@ export async function apiFetch<T>(
   url: string,
   init?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(resolveApiUrl(url), init);
+  let res: Response;
+  try {
+    res = await fetch(resolveApiUrl(url), init);
+  } catch {
+    throw new ApiError(friendlyApiMessage(0), 0);
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new ApiError(
-      (data as { error?: string }).error ?? `Ошибка ${res.status}`,
-      res.status,
-    );
+    const serverMsg = (data as { error?: string }).error;
+    throw new ApiError(friendlyApiMessage(res.status, serverMsg), res.status);
   }
   return data as T;
 }

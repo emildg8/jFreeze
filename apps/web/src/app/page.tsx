@@ -15,6 +15,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { apiFetch, ApiError } from "@/lib/api/client";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { SpendByCategoryPanel } from "@/components/SpendByCategoryPanel";
+import { HomeGuide } from "@/components/HomeGuide";
+import { UserTip } from "@/components/UserTip";
 
 interface Stats {
   inventoryCount: number;
@@ -64,6 +66,15 @@ export default function HomePage() {
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
       {showOnboarding && <Onboarding onDone={load} />}
 
+      {stats && stats.settings?.onboardingDone && (
+        <HomeGuide
+          orderCount={stats.orderCount}
+          inventoryCount={stats.inventoryCount}
+          cartCount={stats.cartCount}
+          onboardingDone
+        />
+      )}
+
       <ExpiryAlerts />
 
       <div className="grid gap-3 grid-cols-2">
@@ -82,19 +93,17 @@ export default function HomePage() {
         />
       </div>
 
-      {stats?.expiry &&
-        (stats.expiry.expired > 0 ||
-          stats.expiry.today > 0 ||
-          stats.expiry.soon > 0) && (
-          <Panel variant="warning" className="text-sm">
-            <span className="font-medium">Срок годности: </span>
-            {stats.expiry.expired > 0 && `${stats.expiry.expired} просроч. `}
-            {stats.expiry.today > 0 && `${stats.expiry.today} сегодня `}
-            {stats.expiry.soon > 0 && `${stats.expiry.soon} скоро`}
+      <StatCard label="Заказов в истории" value={stats?.orderCount ?? 0} />
+
+      {stats &&
+        stats.settings?.onboardingDone &&
+        stats.orderCount > 0 &&
+        (!stats.weekly || stats.weekly.orderCount === 0) && (
+          <Panel variant="muted" className="text-sm text-slate-600">
+            Расходы за неделю появятся, когда в истории будут заказы с суммой за
+            последние 7 дней. Добавьте чек с датой и итогом.
           </Panel>
         )}
-
-      <StatCard label="Заказов в истории" value={stats?.orderCount ?? 0} />
 
       {stats && stats.weekly && stats.weekly.orderCount > 0 && (
         <>
@@ -124,17 +133,25 @@ export default function HomePage() {
 
       <Section title="Быстрые действия">
         <ActionBar className="flex-col sm:flex-row">
-          <LinkButton href="/fridge" className="flex-1">
+          <LinkButton href="/orders" className="flex-1">
+            Сканировать чек
+          </LinkButton>
+          <LinkButton href="/fridge" variant="secondary" className="flex-1">
             Холодильник
           </LinkButton>
           <LinkButton href="/cart" variant="secondary" className="flex-1">
-            Умная корзина
-          </LinkButton>
-          <LinkButton href="/sources" variant="secondary" className="flex-1">
-            Почта и SMS
+            Корзина
           </LinkButton>
         </ActionBar>
       </Section>
+
+      {stats?.settings?.onboardingDone && (
+        <UserTip id="browser-extension" title="Чеки из браузера">
+          Установите расширение Chrome из папки{" "}
+          <code className="text-xs">extensions/browser</code> — на Gmail и Ozon
+          появится кнопка «→ jFreeze». Подробнее в «Ещё → Все платформы».
+        </UserTip>
+      )}
 
       <Section title="Магазины" description="Подключение и импорт заказов">
         <StoreChips />

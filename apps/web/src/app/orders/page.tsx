@@ -16,6 +16,7 @@ import { ReceiptImportPanel } from "@/components/ReceiptImportPanel";
 import { OrdersExportPanel } from "@/components/OrdersExportPanel";
 import { apiFetch, importOrders, refreshCart, ApiError } from "@/lib/api/client";
 import { getStoreLabel } from "@/lib/constants/stores";
+import { UserTip } from "@/components/UserTip";
 
 interface OrderItem {
   name: string;
@@ -98,11 +99,18 @@ export default function OrdersPage() {
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
       {message && <StatusBanner variant="success">{message}</StatusBanner>}
 
+      {!loading && orders.length === 0 && (
+        <UserTip id="ofd-scan-hint" title="Совет по QR">
+          QR на чеке обычно внизу. Если камера не открывается — вставьте строку из QR
+          вручную или сфотографируйте чек целиком.
+        </UserTip>
+      )}
+
       <ReceiptImportPanel
         defaultTab="ofd"
         showOfdCamera
         onImported={async () => {
-          setMessage("Чек добавлен в заказы");
+          setMessage("Готово — чек в истории, корзина обновлена");
           await refreshCart();
           await load();
         }}
