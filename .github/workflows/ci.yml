@@ -20,9 +20,7 @@ jobs:
           cache: npm
 
       - name: Install
-        run: |
-          npm ci --include=optional
-          npm rebuild -w apps/web lightningcss better-sqlite3
+        run: npm ci --include=optional
 
       - name: Lint
         run: npm run lint
