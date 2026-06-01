@@ -6,11 +6,13 @@ import { ozonConnector } from "./ozon";
 import { samokatConnector } from "./samokat";
 import { pyaterochkaConnector } from "./pyaterochka";
 import { perekrestokConnector } from "./perekrestok";
+import { receiptConnector } from "./receipt";
 
 const connectors: Record<StoreId, StoreConnector> = {
   demo: demoConnector,
   manual: manualConnector,
   csv: csvConnector,
+  receipt: receiptConnector,
   ozon: ozonConnector,
   samokat: samokatConnector,
   pyaterochka: pyaterochkaConnector,

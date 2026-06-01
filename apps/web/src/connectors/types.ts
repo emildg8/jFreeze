@@ -2,6 +2,7 @@ export type StoreId =
   | "demo"
   | "manual"
   | "csv"
+  | "receipt"
   | "ozon"
   | "samokat"
   | "pyaterochka"

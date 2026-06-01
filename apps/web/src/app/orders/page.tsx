@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBanner } from "@/components/ui/StatusBanner";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { LinkButtonInline } from "@/components/ui/LinkButton";
+import { ReceiptImportPanel } from "@/components/ReceiptImportPanel";
 import { apiFetch, importOrders, refreshCart, ApiError } from "@/lib/api/client";
 import { getStoreLabel } from "@/lib/constants/stores";
 
@@ -72,10 +73,18 @@ export default function OrdersPage() {
       {error && <StatusBanner variant="error">{error}</StatusBanner>}
       {message && <StatusBanner variant="success">{message}</StatusBanner>}
 
+      <ReceiptImportPanel
+        onImported={async () => {
+          setMessage("Чек добавлен в заказы");
+          await refreshCart();
+          await load();
+        }}
+      />
+
       {!loading && orders.length === 0 && (
         <EmptyState
           title="Заказов пока нет"
-          description="Загрузите демо-данные или импортируйте CSV."
+          description="Загрузите чек (фото, PDF, почта) или демо-данные."
           action={
             <div className="flex flex-col gap-2">
               <Button onClick={() => void importDemo()}>Демо-заказы</Button>

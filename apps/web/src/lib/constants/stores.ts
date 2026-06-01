@@ -2,6 +2,7 @@ export const STORE_LABELS: Record<string, string> = {
   demo: "Демо-магазин",
   manual: "Ручной ввод",
   csv: "CSV / JSON",
+  receipt: "Чек",
   ozon: "Озон",
   samokat: "Самокат",
   pyaterochka: "Пятёрочка",
