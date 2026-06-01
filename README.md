@@ -14,7 +14,7 @@
 ## Быстрый старт
 
 ```bash
-git clone -b release/pre-alpha-0.1 <URL-репозитория>
+git clone -b release/pre-alpha-0.1 https://github.com/emildg8/jFreeze.git
 cd jFreeze
 npm install
 cd apps/web
