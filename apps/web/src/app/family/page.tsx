@@ -86,11 +86,11 @@ export default function FamilyPage() {
 
       {!isPro && (
         <StatusBanner variant="info">
-          Дополнительные профили — в{" "}
+          Несколько профилей — после{" "}
           <Link href="/pro" className="font-semibold underline">
-            jFreeze Pro
-          </Link>
-          . Сейчас активен один профиль.
+            демо Pro
+          </Link>{" "}
+          (бесплатно, без оплаты). Сейчас один профиль.
         </StatusBanner>
       )}
 

@@ -2,7 +2,7 @@
   "name": "jfreeze",
   "version": "0.1.0-pre-alpha",
   "private": true,
-  "description": "jFreeze pre-alpha 0.1 — умный холодильник и корзина",
+  "description": "jFreeze pre-alpha 0.1 — умный холодильник и корзина (только бесплатные инструменты, см. docs/FREE_STACK.md)",
   "scripts": {
     "dev": "npm run dev --workspace=apps/web",
     "build": "npm run build --workspace=apps/web",

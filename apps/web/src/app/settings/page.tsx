@@ -223,9 +223,11 @@ export default function SettingsPage() {
       </Card>
 
       <Card className="mb-4">
-        <h2 className="mb-2 text-sm font-semibold">OpenAI Vision</h2>
+        <h2 className="mb-2 text-sm font-semibold">OpenAI Vision (опционально)</h2>
         <p className="mb-2 text-xs text-slate-500">
-          {hasOpenAiKey ? "Ключ сохранён" : "Pro использует серверный OPENAI_API_KEY"}
+          {hasOpenAiKey
+            ? "Ключ сохранён · платный API провайдера"
+            : "Без ключа — бесплатная эвристика по фото"}
         </p>
         <Input
           type="password"

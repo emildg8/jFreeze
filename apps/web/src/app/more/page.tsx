@@ -54,7 +54,7 @@ export default function MorePage() {
       <Panel variant="muted" className="text-sm text-slate-500">
         <p className="font-semibold text-slate-800">jFreeze pre-alpha 0.1</p>
         <p className="mt-1 leading-relaxed">
-          Умная корзина · холодильник · AI · семейные профили · PWA
+          Бесплатный стек · PWA · умная корзина · холодильник · опциональный AI (BYOK)
         </p>
       </Panel>
     </Screen>

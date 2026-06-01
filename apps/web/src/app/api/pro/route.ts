@@ -28,7 +28,8 @@ export async function POST(request: Request) {
       updateSettings({ plan: "pro" });
       return NextResponse.json({
         plan: "pro",
-        message: "Pro активирован. AI-фото доступно (нужен OPENAI_API_KEY на сервере или свой ключ).",
+        message:
+          "Демо Pro включён (без оплаты). AI-фото — только с вашим OPENAI_API_KEY; иначе бесплатная эвристика.",
       });
     }
     if (body.action === "deactivate") {

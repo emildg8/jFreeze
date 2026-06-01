@@ -121,7 +121,7 @@ export function SmartCartPanel({
             onChange={(e) => update("useAiAdvisor", e.target.checked)}
             className="rounded border-slate-300"
           />
-          AI-совет по корзине (нужен ключ OpenAI)
+          AI-совет (опционально, свой ключ OpenAI — платный у провайдера)
         </label>
       </div>
 

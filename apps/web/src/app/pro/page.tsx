@@ -10,8 +10,8 @@ import { StatusBanner } from "@/components/ui/StatusBanner";
 import { apiFetch, ApiError } from "@/lib/api/client";
 
 const FEATURES = [
-  "AI-распознавание фото (серверный ключ или свой)",
-  "Несколько семейных профилей",
+  "Несколько семейных профилей (локально)",
+  "Флаг для AI-фото при своём OPENAI_API_KEY",
   "Приоритет в roadmap интеграций",
   "Расширенная аналитика (скоро)",
 ];
@@ -59,7 +59,9 @@ export default function ProPage() {
     <Screen>
       <PageHeader
         description={
-          isPro ? "Активна подписка Pro" : "Расширенные возможности приложения"
+          isPro
+            ? "Демо-режим Pro (без оплаты)"
+            : "Расширения для теста · всё приложение бесплатно"
         }
       />
 
@@ -69,8 +71,10 @@ export default function ProPage() {
 
       <Panel className="mb-4 overflow-hidden !p-0">
         <div className="bg-gradient-to-br from-sky-600 to-sky-800 px-5 py-6 text-white">
-          <p className="text-3xl font-bold tabular-nums">199 ₽</p>
-          <p className="text-sm text-sky-100">в месяц · демо бесплатно</p>
+          <p className="text-2xl font-bold">Бесплатно</p>
+          <p className="text-sm text-sky-100">
+            pre-alpha · переключатель в БД, без App Store и без оплаты
+          </p>
         </div>
         <div className="p-5">
           <ul className="mb-5 space-y-2.5 text-sm text-slate-700">
@@ -89,7 +93,7 @@ export default function ProPage() {
               disabled={loading}
               onClick={() => void setPlanAction("activate_trial")}
             >
-              Попробовать Pro
+              Включить демо Pro
             </Button>
           ) : (
             <div className="space-y-2">
@@ -110,8 +114,9 @@ export default function ProPage() {
       </Panel>
 
       <Panel variant="muted" className="text-xs leading-relaxed text-slate-500">
-        Оплата через App Store / Google Play — после публикации мобильной сборки
-        (Capacitor). На сервере задайте OPENAI_API_KEY для AI без личного ключа.
+        jFreeze использует только бесплатные инструменты (см. docs/FREE_STACK.md в
+        репозитории). OpenAI — опционально, по вашему ключу; без него работают
+        эвристика фото и умная корзина без AI-совета.
       </Panel>
     </Screen>
   );

@@ -61,7 +61,7 @@ export function UploadZone({ zone, onComplete }: UploadZoneProps) {
         {zone === "freezer" ? "Морозилка" : "Холодильник"}
       </p>
       <p className="mb-3 text-xs text-slate-500">
-        AI (Pro или свой ключ) или быстрый список для правки
+        Свой ключ OpenAI (опционально) или бесплатный список для правки
       </p>
       <Button
         type="button"
