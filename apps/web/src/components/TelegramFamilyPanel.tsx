@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useOnMount } from "@/lib/hooks/use-on-mount";
 import { Section } from "./ui/Section";
 import { Panel } from "./ui/Panel";
 import { Button } from "./ui/Button";
 import { StatusBanner } from "./ui/StatusBanner";
 import { ActionBar } from "./ui/ActionBar";
-import { apiFetch, ApiError } from "@/lib/api/client";
+import { apiFetch, ApiError, refreshCart } from "@/lib/api/client";
 
 interface TelegramStatus {
   configured: boolean;
@@ -24,14 +25,17 @@ interface InboxItem {
   caption: string | null;
   createdAt: string;
   url: string;
+  hasOfdCaption?: boolean;
 }
 
 export function TelegramFamilyPanel() {
+  const router = useRouter();
   const [status, setStatus] = useState<TelegramStatus | null>(null);
   const [linkCode, setLinkCode] = useState<string | null>(null);
   const [linkExpires, setLinkExpires] = useState<string | null>(null);
   const [inbox, setInbox] = useState<InboxItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,6 +86,51 @@ export function TelegramFamilyPanel() {
     }
   }
 
+  async function importFridge(id: string) {
+    setLoadingId(id);
+    setError(null);
+    try {
+      const data = await apiFetch<{
+        photoId: string;
+        detected: unknown[];
+        recognition?: unknown;
+        demoTemplate?: unknown[];
+      }>(`/api/telegram/inbox/${id}/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "fridge", zone: "fridge" }),
+      });
+      sessionStorage.setItem("jfreeze-fridge-import", JSON.stringify(data));
+      router.push("/fridge");
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Ошибка");
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  async function importReceipt(id: string) {
+    setLoadingId(id);
+    setError(null);
+    try {
+      const data = await apiFetch<{ imported: number }>(
+        `/api/telegram/inbox/${id}/import`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "receipt" }),
+        },
+      );
+      await refreshCart();
+      setMessage(`Чек импортирован: ${data.imported} заказ(ов)`);
+      await load();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Ошибка импорта чека");
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
   const botLink = status?.botUsername
     ? `https://t.me/${status.botUsername}`
     : "https://t.me";
@@ -97,7 +146,12 @@ export function TelegramFamilyPanel() {
             Добавьте <code className="text-xs">TELEGRAM_BOT_TOKEN</code> в{" "}
             <code className="text-xs">.env.local</code> и перезапустите сервер. Токен
             бесплатный у{" "}
-            <a href="https://t.me/BotFather" className="text-[var(--brand)] underline" target="_blank" rel="noreferrer">
+            <a
+              href="https://t.me/BotFather"
+              className="text-[var(--brand)] underline"
+              target="_blank"
+              rel="noreferrer"
+            >
               @BotFather
             </a>
             .
@@ -112,7 +166,12 @@ export function TelegramFamilyPanel() {
                 <>
                   {" "}
                   · Бот:{" "}
-                  <a href={botLink} className="text-[var(--brand)] underline" target="_blank" rel="noreferrer">
+                  <a
+                    href={botLink}
+                    className="text-[var(--brand)] underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     @{status.botUsername}
                   </a>
                 </>
@@ -122,14 +181,20 @@ export function TelegramFamilyPanel() {
               <Button disabled={loading} onClick={() => void createLink()}>
                 Получить код привязки
               </Button>
-              <Button variant="secondary" disabled={loading} onClick={() => void sendExpiryNotify()}>
+              <Button
+                variant="secondary"
+                disabled={loading}
+                onClick={() => void sendExpiryNotify()}
+              >
                 Сроки в Telegram
               </Button>
             </ActionBar>
             {linkCode && (
               <Panel variant="muted" className="mt-3 font-mono text-center">
                 <p className="text-xs text-slate-500 mb-1">Отправьте боту:</p>
-                <p className="text-lg font-bold tracking-widest text-slate-900">/link {linkCode}</p>
+                <p className="text-lg font-bold tracking-widest text-slate-900">
+                  /link {linkCode}
+                </p>
                 {linkExpires && (
                   <p className="mt-1 text-xs text-slate-500">
                     до {new Date(linkExpires).toLocaleTimeString("ru-RU")}
@@ -142,34 +207,72 @@ export function TelegramFamilyPanel() {
           {inbox.length > 0 && (
             <Panel>
               <h3 className="mb-2 text-sm font-semibold text-slate-800">Семейная лента</h3>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {inbox.map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0"
+                    className="border-b border-slate-100 pb-3 last:border-0 last:pb-0"
                   >
-                    <div className="min-w-0 text-sm">
-                      <span className="font-medium text-slate-800">
-                        {item.uploaderName ?? "Семья"}
-                      </span>
-                      <span className="text-slate-500">
-                        {" "}
-                        · {item.kind === "photo" ? "фото" : "файл"}
-                        {" · "}
-                        {new Date(item.createdAt).toLocaleDateString("ru-RU")}
-                      </span>
-                      {item.caption && (
-                        <p className="truncate text-xs text-slate-500">{item.caption}</p>
+                    <div className="flex flex-wrap items-start gap-2">
+                      {item.kind === "photo" && (
+                        <a href={item.url} target="_blank" rel="noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.url}
+                            alt=""
+                            className="h-12 w-12 rounded-lg object-cover border border-slate-200"
+                          />
+                        </a>
                       )}
+                      <div className="min-w-0 flex-1 text-sm">
+                        <span className="font-medium text-slate-800">
+                          {item.uploaderName ?? "Семья"}
+                        </span>
+                        <span className="text-slate-500">
+                          {" "}
+                          · {item.kind === "photo" ? "фото" : "файл"}
+                          {" · "}
+                          {new Date(item.createdAt).toLocaleDateString("ru-RU")}
+                          {item.hasOfdCaption && (
+                            <span className="text-emerald-700"> · QR в подписи</span>
+                          )}
+                        </span>
+                        {item.caption && (
+                          <p className="truncate text-xs text-slate-500">{item.caption}</p>
+                        )}
+                      </div>
                     </div>
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="shrink-0 text-xs font-semibold text-sky-700"
-                    >
-                      Открыть
-                    </a>
+                    {item.kind === "photo" && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          className="text-xs py-1"
+                          disabled={loadingId === item.id}
+                          onClick={() => void importFridge(item.id)}
+                        >
+                          В холодильник
+                        </Button>
+                        {item.hasOfdCaption && (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="text-xs py-1"
+                            disabled={loadingId === item.id}
+                            onClick={() => void importReceipt(item.id)}
+                          >
+                            Чек ОФД
+                          </Button>
+                        )}
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="self-center text-xs font-semibold text-sky-700"
+                        >
+                          Открыть
+                        </a>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -179,8 +282,8 @@ export function TelegramFamilyPanel() {
           <Panel variant="muted" className="text-xs leading-relaxed text-slate-600">
             <p className="font-medium text-slate-800">В боте</p>
             <p className="mt-1">
-              Фото и документы → общая лента · /fridge · /orders · /notify · несколько членов
-              семьи с разными телефонами — каждый /link свой код
+              Фото холодильника → лента → «В холодильник» в приложении. Подпись с QR чека →
+              импорт в заказы. Команды: /fridge · /orders · /notify
             </p>
           </Panel>
         </>

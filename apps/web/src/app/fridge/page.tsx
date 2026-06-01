@@ -10,6 +10,7 @@ import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { UploadZone } from "@/components/UploadZone";
+import { FamilyInboxPanel } from "@/components/FamilyInboxPanel";
 import { FridgeModelPanel } from "@/components/FridgeModelPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -50,6 +51,7 @@ export default function FridgePage() {
   const [barcode, setBarcode] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [photoHint, setPhotoHint] = useState<string | undefined>();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -63,7 +65,24 @@ export default function FridgePage() {
     }
   }, []);
 
-  useOnMount(load);
+  useOnMount(() => {
+    void load();
+    void apiFetch<{ current?: { photoHint: string } }>("/api/fridge/models").then(
+      (d) => {
+        if (d.current?.photoHint) setPhotoHint(d.current.photoHint);
+      },
+    );
+    try {
+      const raw = sessionStorage.getItem("jfreeze-fridge-import");
+      if (raw) {
+        sessionStorage.removeItem("jfreeze-fridge-import");
+        const data = JSON.parse(raw) as Parameters<typeof applyPhotoResult>[0];
+        applyPhotoResult(data);
+      }
+    } catch {
+      /* ignore */
+    }
+  });
 
   async function addManual(e?: { preventDefault?: () => void }) {
     e?.preventDefault?.();
@@ -128,6 +147,31 @@ export default function FridgePage() {
     }
   }
 
+  function applyPhotoResult(data: {
+    photoId: string;
+    detected: Array<{
+      name: string;
+      qty: number;
+      unit: string;
+      confidence?: number;
+    }>;
+    recognition?: { mode?: "ai" | "demo" };
+  }) {
+    setPending({
+      photoId: data.photoId,
+      items:
+        data.detected.length > 0
+          ? data.detected.map((d) => ({
+              name: d.name,
+              qty: d.qty,
+              unit: d.unit,
+              confidence: d.confidence,
+            }))
+          : [{ name: "", qty: 1, unit: "шт" }],
+      recognitionMode: data.recognition?.mode,
+    });
+  }
+
   const filtered = items.filter((i) => i.zone === zone);
 
   return (
@@ -148,7 +192,23 @@ export default function FridgePage() {
         onChange={setZone}
       />
 
-      <FridgeModelPanel />
+      <FridgeModelPanel
+        onSaved={() => {
+          void apiFetch<{
+            current?: { photoHint: string };
+          }>("/api/fridge/models").then((d) => {
+            if (d.current?.photoHint) setPhotoHint(d.current.photoHint);
+          });
+        }}
+      />
+
+      <UploadZone
+        zone={zone}
+        photoHint={photoHint}
+        onComplete={(data) => applyPhotoResult(data)}
+      />
+
+      <FamilyInboxPanel zone={zone} onFridgeImport={(data) => applyPhotoResult(data)} />
 
       <BarcodeScannerPanel
         onDetected={(payload) => {
@@ -160,29 +220,13 @@ export default function FridgePage() {
         }}
       />
 
-      <UploadZone
-        zone={zone}
-        onComplete={(data) =>
-          setPending({
-            photoId: data.photoId,
-            items: data.detected.map((d) => ({
-              name: d.name,
-              qty: d.qty,
-              unit: d.unit,
-              confidence: d.confidence,
-            })),
-            recognitionMode: data.recognition?.mode,
-          })
-        }
-      />
-
       {pending && (
         <Panel className="mt-2">
           <h2 className="mb-1 font-semibold">Подтвердите продукты</h2>
           <p className="mb-2 text-xs text-slate-500">
             {pending.recognitionMode === "ai"
-              ? "Распознано по фото (AI). Исправьте при необходимости."
-              : "Демо-список — отредактируйте или добавьте ключ OpenAI в настройках."}
+              ? "Распознано по фото (AI). При сохранении подставим сроки годности по категории."
+              : "Проверьте список. При сохранении подставим ориентировочные сроки годности."}
           </p>
           <ul className="mb-3 space-y-2">
             {pending.items.map((item, idx) => (

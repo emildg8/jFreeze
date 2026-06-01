@@ -37,9 +37,9 @@ export class OpenAIVisionProvider implements FridgeVisionProvider {
               {
                 type: "text",
                 text: `На фото ${zoneLabel}. ${context.promptExtra}
-Перечисли видимые продукты. Ответь ТОЛЬКО JSON-массивом:
+Перечисли только явно видимые продукты (упаковки, банки, овощи). Ответь ТОЛЬКО JSON-массивом:
 [{"name":"название на русском","qty":1,"unit":"шт|л|кг|уп","confidence":0.0-1.0}]
-Без markdown. Если ничего не видно — [].`,
+Без markdown и комментариев. Не угадывай скрытое. Если пусто или неразборчиво — [].`,
               },
               {
                 type: "image_url",
@@ -62,12 +62,18 @@ export class OpenAIVisionProvider implements FridgeVisionProvider {
     };
     const content = data.choices?.[0]?.message?.content ?? "[]";
     const jsonMatch = content.match(/\[[\s\S]*\]/);
-    const parsed = JSON.parse(jsonMatch?.[0] ?? "[]") as Array<{
+    let parsed: Array<{
       name: string;
       qty?: number;
       unit?: string;
       confidence?: number;
-    }>;
+    }> = [];
+    try {
+      parsed = JSON.parse(jsonMatch?.[0] ?? "[]") as typeof parsed;
+    } catch {
+      return [];
+    }
+    if (!Array.isArray(parsed)) return [];
 
     return parsed
       .filter((item) => item.name?.trim())

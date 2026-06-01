@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import { resolveOfdReceipt } from "@/lib/receipt/ofd-qr";
 import { persistConnectorOrders } from "@/lib/services/orders";
+import { resolveUserScope } from "@/lib/auth/scope";
+import { resolveProverkaChekaTokenForUser } from "@/lib/services/settings";
 
 export async function POST(request: Request) {
   try {
+    const userId = await resolveUserScope();
     const body = await request.json();
     const qr = typeof body.qr === "string" ? body.qr.trim() : "";
     if (!qr) {
       return NextResponse.json({ error: "Передайте строку QR или ссылку чека" }, { status: 400 });
     }
 
-    const result = await resolveOfdReceipt(qr);
+    const token = resolveProverkaChekaTokenForUser(userId);
+    const result = await resolveOfdReceipt(qr, token);
     const flat = result.orders[0];
 
     if (body.autoImport === true) {

@@ -31,6 +31,7 @@ interface PublicSettings {
   historyDays: number;
   expiryRemindersEnabled: boolean;
   hasOpenAiKey: boolean;
+  hasProverkaChekaToken: boolean;
   hasSmartFridgeToken: boolean;
   smartFridgeUrl: string | null;
   plan: string;
@@ -63,6 +64,9 @@ export default function SettingsPage() {
   const [historyDays, setHistoryDays] = useState(90);
   const [openaiKey, setOpenaiKey] = useState("");
   const [clearOpenAi, setClearOpenAi] = useState(false);
+  const [proverkaToken, setProverkaToken] = useState("");
+  const [clearProverka, setClearProverka] = useState(false);
+  const [hasProverkaToken, setHasProverkaToken] = useState(false);
   const [smartUrl, setSmartUrl] = useState("");
   const [smartToken, setSmartToken] = useState("");
   const [expiryOn, setExpiryOn] = useState(true);
@@ -85,9 +89,12 @@ export default function SettingsPage() {
       setHistoryDays(s.historyDays ?? 90);
       setExpiryOn(s.expiryRemindersEnabled !== false);
       setHasOpenAiKey(s.hasOpenAiKey);
+      setHasProverkaToken(s.hasProverkaChekaToken ?? false);
       setSmartUrl(s.smartFridgeUrl ?? "");
       setOpenaiKey("");
       setClearOpenAi(false);
+      setProverkaToken("");
+      setClearProverka(false);
       setSmartToken("");
     } catch (e) {
       setMessage({
@@ -261,6 +268,38 @@ export default function SettingsPage() {
               Напоминания о сроке годности
             </label>
           </div>
+        </Panel>
+      </Section>
+
+      <Section title="ОФД / Proverka Cheka" description="Детальный разбор QR чека · BYOK">
+        <Panel>
+          <p className="mb-3 text-xs leading-relaxed text-slate-600">
+            {hasProverkaToken
+              ? "Токен сохранён — позиции чека подтягиваются из API proverkacheka.com."
+              : "Без токена пробуем HTML страницы ОФД; иначе — одна строка по сумме чека."}
+          </p>
+          <Field label="API-токен" hint="proverkacheka.com → личный кабинет">
+            <Input
+              type="password"
+              placeholder={hasProverkaToken ? "Новый токен" : "Вставьте токен"}
+              value={proverkaToken}
+              onChange={(e) => {
+                setProverkaToken(e.target.value);
+                setClearProverka(false);
+              }}
+            />
+          </Field>
+          {hasProverkaToken && (
+            <label className="mt-3 flex items-center gap-2 text-xs text-slate-600">
+              <input
+                type="checkbox"
+                checked={clearProverka}
+                onChange={(e) => setClearProverka(e.target.checked)}
+                className="rounded border-slate-300"
+              />
+              Удалить сохранённый токен
+            </label>
+          )}
         </Panel>
       </Section>
 

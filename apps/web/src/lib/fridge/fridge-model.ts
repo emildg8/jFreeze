@@ -6,6 +6,8 @@ export type FridgeLayoutType =
   | "side-by-side"
   | "single"
   | "french-door"
+  | "compact"
+  | "built-in"
   | "unknown";
 
 export interface FridgeModelPreset {

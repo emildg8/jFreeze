@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { processPhotoUpload, confirmPhotoInventory } from "@/lib/services/fridge";
 import { resolveUserScope } from "@/lib/auth/scope";
+import { validateFridgeImage } from "@/lib/fridge/image-utils";
 
 export async function POST(request: Request) {
   try {
@@ -14,21 +15,26 @@ export async function POST(request: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = pathExt(file.name);
+    const check = validateFridgeImage(buffer, file.name || "photo.jpg");
+    if (!check.ok) {
+      return NextResponse.json({ error: check.error }, { status: 400 });
+    }
+
     const result = await processPhotoUpload(
       buffer,
       zone === "freezer" ? "freezer" : "fridge",
-      ext,
+      check.ext,
       userId,
     );
 
     return NextResponse.json(result);
   } catch (e) {
     console.error(e);
-    return NextResponse.json(
-      { error: "Не удалось обработать фото" },
-      { status: 500 },
-    );
+    const message =
+      e instanceof Error && e.message.startsWith("OpenAI Vision:")
+        ? "Ошибка OpenAI — проверьте ключ в настройках"
+        : "Не удалось обработать фото";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -49,7 +55,3 @@ export async function PUT(request: Request) {
   }
 }
 
-function pathExt(name: string): string {
-  const dot = name.lastIndexOf(".");
-  return dot >= 0 ? name.slice(dot) : ".jpg";
-}

@@ -7,8 +7,11 @@ import { ensureSeedData } from "@/lib/db/seed";
 import { fridgePhotos } from "@/lib/db/schema";
 import { getVisionProvider, getFridgeVisionContextForUser } from "@/lib/fridge/vision";
 import type { FridgeRecognitionMode } from "@/lib/fridge/vision";
+import { getDemoVisionItems } from "@/lib/fridge/demo-items";
 import { resolveUserScope, GUEST_USER_ID } from "@/lib/auth/scope";
-import { getSettingsForUser } from "./settings";
+import { getSettingsForUser, resolveOpenAiApiKeyForUser } from "./settings";
+import { defaultExpiryDate } from "@/lib/cart/product-knowledge";
+import { normalizeProductName } from "@/lib/orders/normalize";
 import { upsertInventoryItem } from "./inventory";
 
 export function savePhotoFile(buffer: Buffer, ext: string): string {
@@ -49,17 +52,27 @@ export async function processPhotoUpload(
     })
     .run();
 
+  const hasOpenAiKey = Boolean(resolveOpenAiApiKeyForUser(uid));
   const recognition: {
     mode: FridgeRecognitionMode;
     modelLabel: string;
+    photoHint: string;
     needsOpenAiKey: boolean;
+    hasOpenAiKey: boolean;
   } = {
     mode: vision.mode,
     modelLabel: context.model.label,
-    needsOpenAiKey: vision.mode === "demo",
+    photoHint: context.model.photoHint,
+    needsOpenAiKey: !hasOpenAiKey,
+    hasOpenAiKey,
   };
 
-  return { photoId, detected, filePath, recognition };
+  const demoTemplate =
+    vision.mode === "demo" && detected.length === 0
+      ? getDemoVisionItems(zone)
+      : undefined;
+
+  return { photoId, detected, filePath, recognition, demoTemplate };
 }
 
 export function confirmPhotoInventory(
@@ -71,12 +84,14 @@ export function confirmPhotoInventory(
   ensureSeedData();
   const db = getDb();
   for (const item of items) {
+    const normalizedName = normalizeProductName(item.name);
     upsertInventoryItem(
       {
         name: item.name,
         qty: item.qty,
         unit: item.unit,
         zone,
+        expiryAt: defaultExpiryDate(normalizedName),
         source: "photo",
         photoId,
       },

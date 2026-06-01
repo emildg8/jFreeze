@@ -60,6 +60,12 @@ export async function PATCH(request: Request) {
           ? null
           : String(body.fridgeModel);
     }
+    if (body.proverkaChekaToken !== undefined && body.proverkaChekaToken !== "••••••••") {
+      patch.proverkaChekaToken =
+        body.proverkaChekaToken === "" || body.proverkaChekaToken === null
+          ? null
+          : String(body.proverkaChekaToken);
+    }
 
     if (body.cartPreferences !== undefined) {
       saveCartPreferences(

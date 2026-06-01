@@ -104,9 +104,28 @@ async function fetchOfdHtml(data: OfdQrData): Promise<string | null> {
   return null;
 }
 
-async function fetchItemsViaProverka(data: OfdQrData): Promise<ConnectorOrderItem[]> {
-  const token = process.env.PROVERKA_CHEKA_TOKEN?.trim();
-  if (!token) return [];
+/** Ищет QR чека в подписи Telegram или произвольном тексте */
+export function extractOfdQrFromText(text: string): string | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  if (parseOfdQr(trimmed)) return trimmed;
+
+  const urlMatch = trimmed.match(/https?:\/\/[^\s]+/);
+  if (urlMatch && parseOfdQr(urlMatch[0])) return urlMatch[0];
+
+  const queryMatch = trimmed.match(/t=\d{8}T[\d]+[^ \n]*/);
+  if (queryMatch && parseOfdQr(queryMatch[0])) return queryMatch[0];
+
+  return null;
+}
+
+async function fetchItemsViaProverka(
+  data: OfdQrData,
+  token?: string | null,
+): Promise<ConnectorOrderItem[]> {
+  const resolved =
+    token?.trim() || process.env.PROVERKA_CHEKA_TOKEN?.trim() || "";
+  if (!resolved) return [];
 
   const tParam = data.orderedAt
     .toISOString()
@@ -121,7 +140,7 @@ async function fetchItemsViaProverka(data: OfdQrData): Promise<ConnectorOrderIte
     t: tParam,
     s: String(data.totalRub),
     n: data.n ?? "1",
-    token,
+    token: resolved,
   });
 
   try {
@@ -146,7 +165,10 @@ async function fetchItemsViaProverka(data: OfdQrData): Promise<ConnectorOrderIte
   }
 }
 
-export async function resolveOfdReceipt(qrInput: string): Promise<{
+export async function resolveOfdReceipt(
+  qrInput: string,
+  proverkaToken?: string | null,
+): Promise<{
   orders: ConnectorOrder[];
   ofd: OfdQrData;
   source: "api" | "html" | "qr-only";
@@ -159,7 +181,7 @@ export async function resolveOfdReceipt(qrInput: string): Promise<{
     );
   }
 
-  let items: ConnectorOrderItem[] = await fetchItemsViaProverka(ofd);
+  let items: ConnectorOrderItem[] = await fetchItemsViaProverka(ofd, proverkaToken);
   let source: "api" | "html" | "qr-only" = items.length > 0 ? "api" : "qr-only";
 
   if (items.length === 0) {

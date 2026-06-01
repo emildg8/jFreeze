@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseOfdQr } from "@/lib/receipt/ofd-qr";
+import { extractOfdQrFromText, parseOfdQr } from "@/lib/receipt/ofd-qr";
 
 describe("parseOfdQr", () => {
   it("parses standard fiscal QR string", () => {
@@ -22,5 +22,18 @@ describe("parseOfdQr", () => {
 
   it("returns null for garbage", () => {
     expect(parseOfdQr("hello")).toBeNull();
+  });
+});
+
+describe("extractOfdQrFromText", () => {
+  it("finds QR in caption with url", () => {
+    const text =
+      "Покупка https://consumer.1-ofd.ru/v1?t=20240601T1200&s=100&fn=1&i=2&fp=3 спасибо";
+    expect(extractOfdQrFromText(text)).toContain("fn=1");
+  });
+
+  it("finds bare query in caption", () => {
+    const text = "t=20240601T120000&s=50&fn=9&i=1&fp=2";
+    expect(extractOfdQrFromText(text)).toBe(text);
   });
 });

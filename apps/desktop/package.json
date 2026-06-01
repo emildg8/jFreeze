@@ -1,6 +1,6 @@
 {
   "name": "jfreeze-desktop",
-  "version": "0.2.0-pre-alpha",
+  "version": "0.2.6-pre-alpha",
   "private": true,
   "description": "jFreeze для Windows — встроенный локальный сервер",
   "main": "main.cjs",

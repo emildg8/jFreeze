@@ -80,11 +80,12 @@ npm run imap:sync
 
 | Версия | Ветка |
 |--------|--------|
-| **0.2.3-pre-alpha** (текущая) | `main` |
+| **0.2.6-pre-alpha** (текущая) | `main` |
+| 0.2.4-pre-alpha | [v0.2.4-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.4-pre-alpha) |
 | 0.2.1-pre-alpha | [v0.2.1-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.1-pre-alpha) |
 | 0.1.0-pre-alpha | `release/pre-alpha-0.1` |
 
-Последний релиз: [v0.2.2-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.2-pre-alpha) · [CHANGELOG.md](CHANGELOG.md)
+Последний релиз: [v0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) · [CHANGELOG.md](CHANGELOG.md)
 
 ## Лицензия
 

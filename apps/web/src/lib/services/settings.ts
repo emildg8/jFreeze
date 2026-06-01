@@ -28,18 +28,21 @@ export interface AppSettings {
   storeConnectionsJson: string | null;
   imapConfigJson: string | null;
   fridgeModel: string | null;
+  proverkaChekaToken: string | null;
   lastImapSyncAt: Date | null;
   lastExpiryNotifyAt: Date | null;
 }
 
 export type PublicSettings = Omit<
   AppSettings,
-  "openaiApiKey" | "smartFridgeToken"
+  "openaiApiKey" | "smartFridgeToken" | "proverkaChekaToken"
 > & {
   openaiApiKey: string | null;
   smartFridgeToken: string | null;
+  proverkaChekaToken: string | null;
   hasOpenAiKey: boolean;
   hasSmartFridgeToken: boolean;
+  hasProverkaChekaToken: boolean;
 };
 
 function parsePlan(value: unknown): Plan {
@@ -71,6 +74,8 @@ function rowToSettings(row: Record<string, unknown>): AppSettings {
       row.storeConnectionsJson) as string | null,
     imapConfigJson: (row.imap_config_json ?? row.imapConfigJson) as string | null,
     fridgeModel: (row.fridge_model ?? row.fridgeModel) as string | null,
+    proverkaChekaToken: (row.proverka_cheka_token ??
+      row.proverkaChekaToken) as string | null,
     lastImapSyncAt: parseOptionalTimestamp(
       row.last_imap_sync_at ?? row.lastImapSyncAt,
     ),
@@ -92,8 +97,13 @@ export function maskSettings(settings: AppSettings): PublicSettings {
     ...settings,
     openaiApiKey: settings.openaiApiKey ? "••••••••" : null,
     smartFridgeToken: settings.smartFridgeToken ? "••••••••" : null,
+    proverkaChekaToken: settings.proverkaChekaToken ? "••••••••" : null,
     hasOpenAiKey: Boolean(settings.openaiApiKey?.trim()),
     hasSmartFridgeToken: Boolean(settings.smartFridgeToken?.trim()),
+    hasProverkaChekaToken: Boolean(
+      settings.proverkaChekaToken?.trim() ||
+        process.env.PROVERKA_CHEKA_TOKEN?.trim(),
+    ),
   };
 }
 
@@ -149,6 +159,16 @@ export function resolveOpenAiApiKeyForUser(userId: string): string | null {
   return null;
 }
 
+/** Токен proverkacheka.com: свой → env сервера */
+export function resolveProverkaChekaTokenForUser(userId: string): string | null {
+  const s = getSettingsForUser(userId);
+  if (s.proverkaChekaToken?.trim()) return s.proverkaChekaToken.trim();
+  if (process.env.PROVERKA_CHEKA_TOKEN?.trim()) {
+    return process.env.PROVERKA_CHEKA_TOKEN.trim();
+  }
+  return null;
+}
+
 export async function updateSettingsAsync(
   partial: Partial<{
     minQtyThreshold: number;
@@ -165,6 +185,7 @@ export async function updateSettingsAsync(
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
     fridgeModel: string | null;
+    proverkaChekaToken: string | null;
   }>,
 ) {
   const userId = await resolveUserScope();
@@ -187,6 +208,7 @@ export function updateSettings(
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
     fridgeModel: string | null;
+    proverkaChekaToken: string | null;
   }>,
 ) {
   updateSettingsForUser(GUEST_USER_ID, partial);
@@ -209,6 +231,7 @@ export function updateSettingsForUser(
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
     fridgeModel: string | null;
+    proverkaChekaToken: string | null;
   }>,
 ) {
   ensureSeedData();
@@ -253,6 +276,10 @@ export function updateSettingsForUser(
         : current.imapConfigJson,
     fridgeModel:
       partial.fridgeModel !== undefined ? partial.fridgeModel : current.fridgeModel,
+    proverkaChekaToken:
+      partial.proverkaChekaToken !== undefined
+        ? partial.proverkaChekaToken
+        : current.proverkaChekaToken,
   };
 
   const row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();
