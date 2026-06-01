@@ -1,0 +1,82 @@
+[
+  {
+    "id": "ozon",
+    "name": "Озон",
+    "storeId": "ozon",
+    "emailFrom": ["@ozon.ru", "ozon.ru", "noreply@marketplace"],
+    "emailSubject": ["озон", "ozon", "заказ", "чек"],
+    "smsKeywords": ["ozon", "озон", "озон.ру"]
+  },
+  {
+    "id": "wildberries",
+    "name": "Wildberries",
+    "storeId": "wildberries",
+    "emailFrom": ["@wildberries.ru", "wildberries.ru", "@rwb.ru"],
+    "emailSubject": ["wildberries", "вайлдберриз", "заказ", "доставка"],
+    "smsKeywords": ["wildberries", "вайлдберриз", "wb "]
+  },
+  {
+    "id": "samokat",
+    "name": "Самокат",
+    "storeId": "samokat",
+    "emailFrom": ["@samokat.ru", "samokat.ru"],
+    "emailSubject": ["самокат", "samokat", "заказ"],
+    "smsKeywords": ["самокат", "samokat"]
+  },
+  {
+    "id": "yandex_lavka",
+    "name": "Яндекс Лавка",
+    "storeId": "yandex_lavka",
+    "emailFrom": ["@lavka.yandex", "@yandex.ru", "lavka.yandex"],
+    "emailSubject": ["лавка", "yandex", "яндекс", "заказ"],
+    "smsKeywords": ["лавка", "yandex", "яндекс"]
+  },
+  {
+    "id": "pyaterochka",
+    "name": "Пятёрочка",
+    "storeId": "pyaterochka",
+    "emailFrom": ["@x5.ru", "5ka.ru", "pyaterochka"],
+    "emailSubject": ["пятёрочка", "пятерочка", "5ka"],
+    "smsKeywords": ["пятёрочка", "пятерочка", "pyaterochka", "магнит", "перекрёсток"]
+  },
+  {
+    "id": "perekrestok",
+    "name": "Перекрёсток",
+    "storeId": "perekrestok",
+    "emailFrom": ["@perekrestok.ru", "perekrestok", "@x5.ru"],
+    "emailSubject": ["перекрёсток", "perekrestok"],
+    "smsKeywords": ["перекрёсток", "perekrestok"]
+  },
+  {
+    "id": "magnit",
+    "name": "Магнит",
+    "storeId": "magnit",
+    "emailFrom": ["@magnit.ru", "magnit.ru"],
+    "emailSubject": ["магнит", "magnit"],
+    "smsKeywords": ["магнит", "magnit"]
+  },
+  {
+    "id": "ofd",
+    "name": "ОФД / кассовый чек",
+    "storeId": "receipt",
+    "emailFrom": ["ofd", "taxcom", "платформа", "kontur", "1-ofd", "ofd.ru"],
+    "emailSubject": ["чек", "фискальн", "ofd", "ккт", "покупк"],
+    "smsKeywords": ["чек", "ofd", "фн", "фд"]
+  },
+  {
+    "id": "sber",
+    "name": "Сбер / банк",
+    "storeId": "receipt",
+    "emailFrom": ["@sberbank.ru", "sberbank"],
+    "emailSubject": ["покупка", "списание", "операция", "чек"],
+    "smsKeywords": ["сбербанк", "sber", "покупка", "списание", "mir-", "мир-"]
+  },
+  {
+    "id": "tinkoff",
+    "name": "Т-Банк",
+    "storeId": "receipt",
+    "emailFrom": ["@tinkoff.ru", "tinkoff"],
+    "emailSubject": ["покупка", "операция", "чек"],
+    "smsKeywords": ["tinkoff", "тинькофф", "т-банк", "t-bank"]
+  }
+]

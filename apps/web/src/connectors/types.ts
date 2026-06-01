@@ -6,7 +6,10 @@ export type StoreId =
   | "ozon"
   | "samokat"
   | "pyaterochka"
-  | "perekrestok";
+  | "perekrestok"
+  | "wildberries"
+  | "yandex_lavka"
+  | "magnit";
 
 export type ConnectorAvailability = "active" | "beta" | "planned";
 

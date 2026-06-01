@@ -24,7 +24,8 @@ export function PushEnable() {
 
     try {
       const reg = await navigator.serviceWorker.register("/sw.js");
-      await fetch("/api/push/subscribe", {
+      const { apiFetchRaw } = await import("@/lib/api/client");
+      await apiFetchRaw("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ endpoint: "local-reminders", keys: {} }),

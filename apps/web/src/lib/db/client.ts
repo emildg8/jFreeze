@@ -18,7 +18,21 @@ function resolveDbPath(): string {
   if (envPath?.startsWith("file:")) {
     return envPath.replace("file:", "");
   }
-  return path.join(process.cwd(), "data", "jfreeze.db");
+  const primary = path.join(
+    /* turbopackIgnore: true */ process.cwd(),
+    "data",
+    "jfreeze.db",
+  );
+  const monorepo = path.join(
+    /* turbopackIgnore: true */ process.cwd(),
+    "apps",
+    "web",
+    "data",
+    "jfreeze.db",
+  );
+  if (fs.existsSync(primary)) return primary;
+  if (fs.existsSync(monorepo)) return monorepo;
+  return primary;
 }
 
 function ensureDbDirectory(dbPath: string) {

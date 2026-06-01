@@ -24,6 +24,24 @@ const links = [
     icon: "⭐",
   },
   {
+    href: "/sources",
+    label: "Источники заказов",
+    description: "Почта, SMS, магазины РФ",
+    icon: "📬",
+  },
+  {
+    href: "/platforms",
+    label: "Все платформы",
+    description: "Web, Windows, Android, iOS, Telegram",
+    icon: "📲",
+  },
+  {
+    href: "/export",
+    label: "Экспорт и интеграции",
+    description: "Excel, CSV, JSON для других приложений",
+    icon: "📊",
+  },
+  {
     href: "/settings",
     label: "Настройки",
     description: "Магазины, импорт, ключи",
@@ -52,9 +70,9 @@ export default function MorePage() {
       </Section>
 
       <Panel variant="muted" className="text-sm text-slate-500">
-        <p className="font-semibold text-slate-800">jFreeze pre-alpha 0.1</p>
+        <p className="font-semibold text-slate-800">jFreeze pre-alpha 0.2</p>
         <p className="mt-1 leading-relaxed">
-          Бесплатный стек · PWA · умная корзина · холодильник · опциональный AI (BYOK)
+          IMAP · QR ОФД · Telegram · 5 платформ · бесплатный стек · AI опционально (BYOK)
         </p>
       </Panel>
     </Screen>

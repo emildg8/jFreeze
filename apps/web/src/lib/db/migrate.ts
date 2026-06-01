@@ -27,6 +27,47 @@ export function migrateColumns(sqlite: Database.Database) {
   add("cart_suggestions", "composition_tip", "TEXT");
   add("cart_suggestions", "quality_tip", "TEXT");
   add("inventory_items", "barcode", "TEXT");
+  add("user_settings", "store_connections_json", "TEXT");
+  add("user_settings", "imap_config_json", "TEXT");
+  add("user_settings", "last_imap_sync_at", "INTEGER");
+  add("user_settings", "last_expiry_notify_at", "INTEGER");
+
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS source_imports (
+      content_hash TEXT PRIMARY KEY,
+      channel TEXT NOT NULL,
+      store_id TEXT NOT NULL,
+      order_ids_json TEXT,
+      imported_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS telegram_link_tokens (
+      token TEXT PRIMARY KEY,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS telegram_chats (
+      chat_id TEXT PRIMARY KEY,
+      profile_id TEXT NOT NULL DEFAULT 'default',
+      display_name TEXT,
+      username TEXT,
+      notify_expiry INTEGER NOT NULL DEFAULT 1,
+      notify_orders INTEGER NOT NULL DEFAULT 1,
+      notify_family INTEGER NOT NULL DEFAULT 1,
+      linked_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS family_inbox (
+      id TEXT PRIMARY KEY,
+      profile_id TEXT NOT NULL DEFAULT 'default',
+      chat_id TEXT NOT NULL,
+      uploader_name TEXT,
+      file_path TEXT NOT NULL,
+      file_name TEXT,
+      mime_type TEXT,
+      kind TEXT NOT NULL,
+      caption TEXT,
+      created_at INTEGER NOT NULL
+    );
+  `);
 
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS profiles (

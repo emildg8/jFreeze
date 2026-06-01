@@ -23,6 +23,8 @@ export interface AppSettings {
   smartFridgeUrl: string | null;
   smartFridgeToken: string | null;
   cartPreferencesJson: string | null;
+  lastImapSyncAt: Date | null;
+  lastExpiryNotifyAt: Date | null;
 }
 
 export type PublicSettings = Omit<
@@ -60,7 +62,20 @@ function rowToSettings(row: Record<string, unknown>): AppSettings {
       row.smartFridgeToken) as string | null,
     cartPreferencesJson: (row.cart_preferences_json ??
       row.cartPreferencesJson) as string | null,
+    lastImapSyncAt: parseOptionalTimestamp(
+      row.last_imap_sync_at ?? row.lastImapSyncAt,
+    ),
+    lastExpiryNotifyAt: parseOptionalTimestamp(
+      row.last_expiry_notify_at ?? row.lastExpiryNotifyAt,
+    ),
   };
+}
+
+function parseOptionalTimestamp(value: unknown): Date | null {
+  if (value == null) return null;
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return new Date(n);
 }
 
 export function maskSettings(settings: AppSettings): PublicSettings {
@@ -168,4 +183,30 @@ export function saveCartPreferences(prefs: CartPreferences) {
   updateSettings({
     cartPreferencesJson: JSON.stringify(prefs),
   });
+}
+
+export function getLastImapSyncAt(): Date | null {
+  return getSettings().lastImapSyncAt;
+}
+
+export function setLastImapSyncAt(at: Date) {
+  ensureSeedData();
+  const db = getDb();
+  db.update(userSettings)
+    .set({ lastImapSyncAt: at })
+    .where(eq(userSettings.id, "default"))
+    .run();
+}
+
+export function getLastExpiryNotifyAt(): Date | null {
+  return getSettings().lastExpiryNotifyAt;
+}
+
+export function setLastExpiryNotifyAt(at: Date) {
+  ensureSeedData();
+  const db = getDb();
+  db.update(userSettings)
+    .set({ lastExpiryNotifyAt: at })
+    .where(eq(userSettings.id, "default"))
+    .run();
 }

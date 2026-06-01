@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatusBanner } from "@/components/ui/StatusBanner";
+import { TelegramFamilyPanel } from "@/components/TelegramFamilyPanel";
 import { apiFetch, ApiError } from "@/lib/api/client";
 
 interface Profile {
@@ -97,6 +98,8 @@ export default function FamilyPage() {
       {message && (
         <StatusBanner variant={message.variant}>{message.text}</StatusBanner>
       )}
+
+      <TelegramFamilyPanel />
 
       <ul className="mb-4 space-y-2">
         {profiles.map((p) => (

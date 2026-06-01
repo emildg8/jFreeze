@@ -7,6 +7,11 @@ import { samokatConnector } from "./samokat";
 import { pyaterochkaConnector } from "./pyaterochka";
 import { perekrestokConnector } from "./perekrestok";
 import { receiptConnector } from "./receipt";
+import {
+  wildberriesConnector,
+  yandexLavkaConnector,
+  magnitConnector,
+} from "./marketplace-beta";
 
 const connectors: Record<StoreId, StoreConnector> = {
   demo: demoConnector,
@@ -17,6 +22,9 @@ const connectors: Record<StoreId, StoreConnector> = {
   samokat: samokatConnector,
   pyaterochka: pyaterochkaConnector,
   perekrestok: perekrestokConnector,
+  wildberries: wildberriesConnector,
+  yandex_lavka: yandexLavkaConnector,
+  magnit: magnitConnector,
 };
 
 export function getConnector(id: StoreId): StoreConnector {
