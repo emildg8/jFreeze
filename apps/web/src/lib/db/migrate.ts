@@ -36,6 +36,7 @@ export function migrateColumns(sqlite: Database.Database) {
   add("user_settings", "imap_config_json", "TEXT");
   add("user_settings", "last_imap_sync_at", "INTEGER");
   add("user_settings", "last_expiry_notify_at", "INTEGER");
+  add("user_settings", "fridge_model", "TEXT");
   add("orders", "user_id", "TEXT NOT NULL DEFAULT 'default'");
   add("inventory_items", "user_id", "TEXT NOT NULL DEFAULT 'default'");
   add("cart_suggestions", "user_id", "TEXT NOT NULL DEFAULT 'default'");

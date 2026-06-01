@@ -27,6 +27,7 @@ export interface AppSettings {
   cartPreferencesJson: string | null;
   storeConnectionsJson: string | null;
   imapConfigJson: string | null;
+  fridgeModel: string | null;
   lastImapSyncAt: Date | null;
   lastExpiryNotifyAt: Date | null;
 }
@@ -69,6 +70,7 @@ function rowToSettings(row: Record<string, unknown>): AppSettings {
     storeConnectionsJson: (row.store_connections_json ??
       row.storeConnectionsJson) as string | null,
     imapConfigJson: (row.imap_config_json ?? row.imapConfigJson) as string | null,
+    fridgeModel: (row.fridge_model ?? row.fridgeModel) as string | null,
     lastImapSyncAt: parseOptionalTimestamp(
       row.last_imap_sync_at ?? row.lastImapSyncAt,
     ),
@@ -135,7 +137,11 @@ export async function getPublicSettingsAsync(): Promise<PublicSettings> {
 
 /** Ключ для Vision: свой → Pro-серверный env → нет */
 export function resolveOpenAiApiKey(): string | null {
-  const s = getSettings();
+  return resolveOpenAiApiKeyForUser(GUEST_USER_ID);
+}
+
+export function resolveOpenAiApiKeyForUser(userId: string): string | null {
+  const s = getSettingsForUser(userId);
   if (s.openaiApiKey?.trim()) return s.openaiApiKey.trim();
   if (s.plan === "pro" && process.env.OPENAI_API_KEY?.trim()) {
     return process.env.OPENAI_API_KEY.trim();
@@ -158,6 +164,7 @@ export async function updateSettingsAsync(
     cartPreferencesJson: string | null;
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
+    fridgeModel: string | null;
   }>,
 ) {
   const userId = await resolveUserScope();
@@ -179,6 +186,7 @@ export function updateSettings(
     cartPreferencesJson: string | null;
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
+    fridgeModel: string | null;
   }>,
 ) {
   updateSettingsForUser(GUEST_USER_ID, partial);
@@ -200,6 +208,7 @@ export function updateSettingsForUser(
     cartPreferencesJson: string | null;
     storeConnectionsJson: string | null;
     imapConfigJson: string | null;
+    fridgeModel: string | null;
   }>,
 ) {
   ensureSeedData();
@@ -242,6 +251,8 @@ export function updateSettingsForUser(
       partial.imapConfigJson !== undefined
         ? partial.imapConfigJson
         : current.imapConfigJson,
+    fridgeModel:
+      partial.fridgeModel !== undefined ? partial.fridgeModel : current.fridgeModel,
   };
 
   const row = db.select().from(userSettings).where(eq(userSettings.id, userId)).get();

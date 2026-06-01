@@ -5,7 +5,10 @@ import path from "path";
 import { getDb } from "@/lib/db/client";
 import { ensureSeedData } from "@/lib/db/seed";
 import { fridgePhotos } from "@/lib/db/schema";
-import { getVisionProvider } from "@/lib/fridge/vision";
+import { getVisionProvider, getFridgeVisionContextForUser } from "@/lib/fridge/vision";
+import type { FridgeRecognitionMode } from "@/lib/fridge/vision";
+import { resolveUserScope, GUEST_USER_ID } from "@/lib/auth/scope";
+import { getSettingsForUser } from "./settings";
 import { upsertInventoryItem } from "./inventory";
 
 export function savePhotoFile(buffer: Buffer, ext: string): string {
@@ -25,11 +28,14 @@ export async function processPhotoUpload(
   buffer: Buffer,
   zone: "fridge" | "freezer",
   ext = ".jpg",
+  userId?: string,
 ) {
   ensureSeedData();
+  const uid = userId ?? (await resolveUserScope());
   const filePath = savePhotoFile(buffer, ext);
-  const vision = getVisionProvider();
-  const detected = await vision.detectFromImage(buffer, zone);
+  const context = getFridgeVisionContextForUser(uid);
+  const vision = getVisionProvider(uid);
+  const detected = await vision.detectFromImage(buffer, zone, context);
 
   const photoId = uuid();
   const db = getDb();
@@ -43,25 +49,39 @@ export async function processPhotoUpload(
     })
     .run();
 
-  return { photoId, detected, filePath };
+  const recognition: {
+    mode: FridgeRecognitionMode;
+    modelLabel: string;
+    needsOpenAiKey: boolean;
+  } = {
+    mode: vision.mode,
+    modelLabel: context.model.label,
+    needsOpenAiKey: vision.mode === "demo",
+  };
+
+  return { photoId, detected, filePath, recognition };
 }
 
 export function confirmPhotoInventory(
   photoId: string,
   items: Array<{ name: string; qty: number; unit: string }>,
   zone: "fridge" | "freezer",
+  userId: string = GUEST_USER_ID,
 ) {
   ensureSeedData();
   const db = getDb();
   for (const item of items) {
-    upsertInventoryItem({
-      name: item.name,
-      qty: item.qty,
-      unit: item.unit,
-      zone,
-      source: "photo",
-      photoId,
-    });
+    upsertInventoryItem(
+      {
+        name: item.name,
+        qty: item.qty,
+        unit: item.unit,
+        zone,
+        source: "photo",
+        photoId,
+      },
+      userId,
+    );
   }
   db.update(fridgePhotos)
     .set({ userConfirmedAt: new Date() })
@@ -77,4 +97,8 @@ export function getPhoto(photoId: string) {
     .from(fridgePhotos)
     .where(eq(fridgePhotos.id, photoId))
     .all()[0];
+}
+
+export function getFridgeModelForUser(userId: string = GUEST_USER_ID) {
+  return getSettingsForUser(userId).fridgeModel;
 }

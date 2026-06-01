@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { createSmartFridgeProvider } from "@/lib/fridge/smart-fridge";
-import { getSettings } from "@/lib/services/settings";
+import { getSettingsForUser } from "@/lib/services/settings";
 import { upsertInventoryItem } from "@/lib/services/inventory";
+import { getFridgeVisionContextForUser } from "@/lib/fridge/vision";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function POST() {
   try {
-    const settings = getSettings();
+    const userId = await resolveUserScope();
+    const settings = getSettingsForUser(userId);
+    const visionContext = getFridgeVisionContextForUser(userId);
     const provider = createSmartFridgeProvider(
       settings.smartFridgeUrl,
       settings.smartFridgeToken,
@@ -17,26 +21,40 @@ export async function POST() {
       );
     }
 
-    const fridge = await provider.detectFromImage(Buffer.alloc(0), "fridge");
-    const freezer = await provider.detectFromImage(Buffer.alloc(0), "freezer");
+    const fridge = await provider.detectFromImage(
+      Buffer.alloc(0),
+      "fridge",
+      visionContext,
+    );
+    const freezer = await provider.detectFromImage(
+      Buffer.alloc(0),
+      "freezer",
+      visionContext,
+    );
 
     for (const item of fridge) {
-      upsertInventoryItem({
-        name: item.name,
-        qty: item.qty,
-        unit: item.unit,
-        zone: "fridge",
-        source: "smart-fridge",
-      });
+      upsertInventoryItem(
+        {
+          name: item.name,
+          qty: item.qty,
+          unit: item.unit,
+          zone: "fridge",
+          source: "smart-fridge",
+        },
+        userId,
+      );
     }
     for (const item of freezer) {
-      upsertInventoryItem({
-        name: item.name,
-        qty: item.qty,
-        unit: item.unit,
-        zone: "freezer",
-        source: "smart-fridge",
-      });
+      upsertInventoryItem(
+        {
+          name: item.name,
+          qty: item.qty,
+          unit: item.unit,
+          zone: "freezer",
+          source: "smart-fridge",
+        },
+        userId,
+      );
     }
 
     return NextResponse.json({

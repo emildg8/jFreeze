@@ -32,6 +32,7 @@ export function ensureUserWorkspace(userId: string) {
         cartPreferencesJson: guest?.cartPreferencesJson ?? null,
         imapConfigJson: guest?.imapConfigJson ?? null,
         storeConnectionsJson: guest?.storeConnectionsJson ?? null,
+        fridgeModel: guest?.fridgeModel ?? null,
       })
       .run();
 

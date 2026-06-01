@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { processPhotoUpload, confirmPhotoInventory } from "@/lib/services/fridge";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function POST(request: Request) {
   try {
+    const userId = await resolveUserScope();
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const zone = (formData.get("zone") as string) || "fridge";
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
       buffer,
       zone === "freezer" ? "freezer" : "fridge",
       ext,
+      userId,
     );
 
     return NextResponse.json(result);
@@ -31,11 +34,13 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const userId = await resolveUserScope();
     const body = await request.json();
     confirmPhotoInventory(
       body.photoId,
       body.items,
       body.zone === "freezer" ? "freezer" : "fridge",
+      userId,
     );
     return NextResponse.json({ ok: true });
   } catch (e) {

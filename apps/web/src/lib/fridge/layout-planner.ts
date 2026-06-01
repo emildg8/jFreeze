@@ -1,6 +1,7 @@
 import storageGuide from "@/data/storage-guide.ru.json";
 import { normalizeProductName } from "@/lib/orders/normalize";
 import { inferCategory, getProductHint } from "@/lib/cart/product-knowledge";
+import { parseFridgeModel } from "@/lib/fridge/fridge-model";
 
 export interface LayoutItem {
   id: string;
@@ -38,13 +39,16 @@ export function planFridgeLayout(
     zone: string;
     expiryAt?: Date | null;
   }>,
-): { fridge: LayoutItem[]; freezer: LayoutItem[]; tips: string[] } {
+  fridgeModelRaw?: string | null,
+): { fridge: LayoutItem[]; freezer: LayoutItem[]; tips: string[]; modelLabel: string } {
   const fridge: LayoutItem[] = [];
   const freezer: LayoutItem[] = [];
   const tips = new Set<string>();
+  const model = parseFridgeModel(fridgeModelRaw);
 
   tips.add("Сырое мясо и рыба — на нижней полке, готовое — выше.");
   tips.add("Не ставьте молочное в дверцу надолго — там теплее.");
+  for (const t of model.layoutTips) tips.add(t);
 
   for (const item of items) {
     const guide = matchGuide(item.normalizedName);
@@ -81,5 +85,6 @@ export function planFridgeLayout(
     fridge: fridge.sort(sortByShelf),
     freezer: freezer.sort(sortByShelf),
     tips: [...tips],
+    modelLabel: model.label,
   };
 }

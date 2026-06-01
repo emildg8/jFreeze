@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { listInventory } from "@/lib/services/inventory";
 import { planFridgeLayout } from "@/lib/fridge/layout-planner";
+import { getFridgeModelForUser } from "@/lib/services/fridge";
+import { resolveUserScope } from "@/lib/auth/scope";
 
 export async function GET() {
   try {
-    const items = listInventory();
+    const userId = await resolveUserScope();
+    const items = listInventory(userId);
     const plan = planFridgeLayout(
       items.map((i) => ({
         id: i.id,
@@ -13,6 +16,7 @@ export async function GET() {
         zone: i.zone,
         expiryAt: i.expiryAt,
       })),
+      getFridgeModelForUser(userId),
     );
     return NextResponse.json(plan);
   } catch (e) {

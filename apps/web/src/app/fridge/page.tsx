@@ -10,6 +10,7 @@ import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { UploadZone } from "@/components/UploadZone";
+import { FridgeModelPanel } from "@/components/FridgeModelPanel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBanner } from "@/components/ui/StatusBanner";
@@ -32,6 +33,7 @@ interface PendingItem {
   name: string;
   qty: number;
   unit: string;
+  confidence?: number;
 }
 
 export default function FridgePage() {
@@ -40,6 +42,7 @@ export default function FridgePage() {
   const [pending, setPending] = useState<{
     photoId: string;
     items: PendingItem[];
+    recognitionMode?: "ai" | "demo";
   } | null>(null);
   const [name, setName] = useState("");
   const [qty, setQty] = useState("1");
@@ -102,6 +105,10 @@ export default function FridgePage() {
 
   async function confirmPhoto() {
     if (!pending) return;
+    const items = pending.items
+      .filter((i) => i.name.trim())
+      .map((i) => ({ name: i.name.trim(), qty: i.qty, unit: i.unit || "шт" }));
+    if (items.length === 0) return;
     setError(null);
     try {
       await apiFetch("/api/fridge/photo", {
@@ -109,7 +116,7 @@ export default function FridgePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           photoId: pending.photoId,
-          items: pending.items,
+          items,
           zone,
         }),
       });
@@ -141,6 +148,8 @@ export default function FridgePage() {
         onChange={setZone}
       />
 
+      <FridgeModelPanel />
+
       <BarcodeScannerPanel
         onDetected={(payload) => {
           setBarcode(payload.barcode);
@@ -154,18 +163,32 @@ export default function FridgePage() {
       <UploadZone
         zone={zone}
         onComplete={(data) =>
-          setPending({ photoId: data.photoId, items: data.detected })
+          setPending({
+            photoId: data.photoId,
+            items: data.detected.map((d) => ({
+              name: d.name,
+              qty: d.qty,
+              unit: d.unit,
+              confidence: d.confidence,
+            })),
+            recognitionMode: data.recognition?.mode,
+          })
         }
       />
 
       {pending && (
         <Panel className="mt-2">
-          <h2 className="mb-2 font-semibold">Подтвердите продукты</h2>
+          <h2 className="mb-1 font-semibold">Подтвердите продукты</h2>
+          <p className="mb-2 text-xs text-slate-500">
+            {pending.recognitionMode === "ai"
+              ? "Распознано по фото (AI). Исправьте при необходимости."
+              : "Демо-список — отредактируйте или добавьте ключ OpenAI в настройках."}
+          </p>
           <ul className="mb-3 space-y-2">
             {pending.items.map((item, idx) => (
-              <li key={idx} className="flex gap-2">
+              <li key={idx} className="flex flex-wrap items-center gap-2">
                 <Input
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                   value={item.name}
                   onChange={(e) => {
                     const next = [...pending.items];
@@ -174,7 +197,7 @@ export default function FridgePage() {
                   }}
                 />
                 <Input
-                  className="w-20"
+                  className="w-16"
                   type="number"
                   value={item.qty}
                   onChange={(e) => {
@@ -186,10 +209,54 @@ export default function FridgePage() {
                     setPending({ ...pending, items: next });
                   }}
                 />
+                <Input
+                  className="w-14"
+                  value={item.unit}
+                  onChange={(e) => {
+                    const next = [...pending.items];
+                    next[idx] = { ...item, unit: e.target.value };
+                    setPending({ ...pending, items: next });
+                  }}
+                  aria-label="Единица"
+                />
+                {item.confidence != null && pending.recognitionMode === "ai" && (
+                  <span className="text-[10px] text-slate-400 tabular-nums">
+                    {Math.round(item.confidence * 100)}%
+                  </span>
+                )}
+                <Button
+                  variant="ghost"
+                  className="py-1 text-xs text-red-600"
+                  type="button"
+                  onClick={() => {
+                    const next = pending.items.filter((_, i) => i !== idx);
+                    if (next.length === 0) setPending(null);
+                    else setPending({ ...pending, items: next });
+                  }}
+                >
+                  ×
+                </Button>
               </li>
             ))}
           </ul>
-          <Button className="w-full" onClick={() => void confirmPhoto()}>
+          <Button
+            variant="secondary"
+            className="mb-2 w-full text-sm"
+            type="button"
+            onClick={() =>
+              setPending({
+                ...pending,
+                items: [...pending.items, { name: "", qty: 1, unit: "шт" }],
+              })
+            }
+          >
+            + Добавить строку
+          </Button>
+          <Button
+            className="w-full"
+            onClick={() => void confirmPhoto()}
+            disabled={pending.items.every((i) => !i.name.trim())}
+          >
             Сохранить в инвентарь
           </Button>
         </Panel>

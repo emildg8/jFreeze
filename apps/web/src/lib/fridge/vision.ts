@@ -1,5 +1,12 @@
-import { resolveOpenAiApiKey } from "@/lib/services/settings";
+import { resolveOpenAiApiKeyForUser } from "@/lib/services/settings";
 import { OpenAIVisionProvider } from "./openai-vision";
+import { HeuristicVisionProvider } from "./heuristic-vision";
+import {
+  buildFridgeVisionContext,
+  type FridgeVisionContext,
+} from "./fridge-model";
+import { GUEST_USER_ID } from "@/lib/auth/scope";
+import { getSettingsForUser } from "@/lib/services/settings";
 
 export interface DetectedItem {
   name: string;
@@ -8,38 +15,27 @@ export interface DetectedItem {
   confidence: number;
 }
 
+export type FridgeRecognitionMode = "ai" | "demo";
+
 export interface FridgeVisionProvider {
-  detectFromImage(buffer: Buffer, zone: "fridge" | "freezer"): Promise<DetectedItem[]>;
-}
-
-const HEURISTIC_FRIDGE: DetectedItem[] = [
-  { name: "Молоко", qty: 1, unit: "л", confidence: 0.5 },
-  { name: "Яйца", qty: 10, unit: "шт", confidence: 0.5 },
-  { name: "Сыр", qty: 1, unit: "шт", confidence: 0.4 },
-  { name: "Йогурт", qty: 2, unit: "шт", confidence: 0.4 },
-];
-
-export class HeuristicVisionProvider implements FridgeVisionProvider {
-  async detectFromImage(
-    _buffer: Buffer,
+  readonly mode: FridgeRecognitionMode;
+  detectFromImage(
+    buffer: Buffer,
     zone: "fridge" | "freezer",
-  ): Promise<DetectedItem[]> {
-    if (zone === "freezer") {
-      return [
-        { name: "Замороженные овощи", qty: 1, unit: "уп", confidence: 0.4 },
-        { name: "Мороженое", qty: 1, unit: "шт", confidence: 0.3 },
-        { name: "Пельмени", qty: 1, unit: "уп", confidence: 0.4 },
-      ];
-    }
-    return [...HEURISTIC_FRIDGE];
-  }
+    context: FridgeVisionContext,
+  ): Promise<DetectedItem[]>;
 }
 
-/** Только для загрузки фото — не умный холодильник (он через /api/smart-fridge/sync). */
-export function getVisionProvider(): FridgeVisionProvider {
-  const apiKey = resolveOpenAiApiKey();
+export function getVisionProvider(userId: string = GUEST_USER_ID): FridgeVisionProvider {
+  const apiKey = resolveOpenAiApiKeyForUser(userId);
   if (apiKey) {
     return new OpenAIVisionProvider(apiKey);
   }
   return new HeuristicVisionProvider();
+}
+
+export function getFridgeVisionContextForUser(
+  userId: string = GUEST_USER_ID,
+): FridgeVisionContext {
+  return buildFridgeVisionContext(getSettingsForUser(userId).fridgeModel);
 }

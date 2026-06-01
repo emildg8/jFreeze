@@ -22,6 +22,7 @@ interface LayoutPlan {
   fridge: LayoutItem[];
   freezer: LayoutItem[];
   tips: string[];
+  modelLabel?: string;
 }
 
 export function FridgeLayoutPanel() {
@@ -61,6 +62,12 @@ export function FridgeLayoutPanel() {
 
       {plan && plan.fridge.length + plan.freezer.length === 0 && !loading && (
         <p className="text-xs text-slate-500">Добавьте продукты — появится план раскладки.</p>
+      )}
+
+      {plan?.modelLabel && plan.modelLabel !== "Не указана" && (
+        <p className="mb-2 text-xs text-slate-600">
+          Модель: <span className="font-medium">{plan.modelLabel}</span>
+        </p>
       )}
 
       {plan && plan.tips.length > 0 && (

@@ -1,7 +1,10 @@
 import type { DetectedItem, FridgeVisionProvider } from "./vision";
+import type { FridgeVisionContext } from "./fridge-model";
 
 /** Заглушка Home Assistant / MQTT: GET inventory JSON с умного холодильника */
 export class SmartFridgeProvider implements FridgeVisionProvider {
+  readonly mode = "ai" as const;
+
   constructor(
     private baseUrl: string,
     private token?: string,
@@ -10,6 +13,7 @@ export class SmartFridgeProvider implements FridgeVisionProvider {
   async detectFromImage(
     _buffer: Buffer,
     zone: "fridge" | "freezer",
+    _context: FridgeVisionContext,
   ): Promise<DetectedItem[]> {
     const url = new URL("/api/jfreeze/inventory", this.baseUrl.replace(/\/$/, ""));
     url.searchParams.set("zone", zone);

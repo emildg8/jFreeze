@@ -96,6 +96,7 @@ export const userSettings = sqliteTable("user_settings", {
   cartPreferencesJson: text("cart_preferences_json"),
   storeConnectionsJson: text("store_connections_json"),
   imapConfigJson: text("imap_config_json"),
+  fridgeModel: text("fridge_model"),
   lastImapSyncAt: integer("last_imap_sync_at", { mode: "timestamp" }),
   lastExpiryNotifyAt: integer("last_expiry_notify_at", { mode: "timestamp" }),
 });

@@ -54,6 +54,12 @@ export async function PATCH(request: Request) {
           ? null
           : String(body.smartFridgeToken);
     }
+    if (body.fridgeModel !== undefined) {
+      patch.fridgeModel =
+        body.fridgeModel === "" || body.fridgeModel === null
+          ? null
+          : String(body.fridgeModel);
+    }
 
     if (body.cartPreferences !== undefined) {
       saveCartPreferences(
