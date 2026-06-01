@@ -1,5 +1,7 @@
 # jFreeze — pre-alpha 0.2
 
+[![CI](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml/badge.svg?branch=release/pre-alpha-0.2)](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml)
+
 > Умный холодильник, история заказов, корзина, семья, Telegram.  
 > **Платформы:** Web/PWA · Windows · Android · iOS · Telegram-бот.
 

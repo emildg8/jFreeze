@@ -23,5 +23,8 @@
   "workspaces": [
     "apps/web",
     "apps/desktop"
-  ]
+  ],
+  "overrides": {
+    "vitest": "3.2.4"
+  }
 }

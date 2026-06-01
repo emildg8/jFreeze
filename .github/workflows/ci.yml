@@ -9,16 +9,18 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      CI: "true"
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
 
       - name: Install
-        run: npm ci
+        run: npm ci --include=optional
 
       - name: Lint
         run: npm run lint
@@ -35,5 +37,3 @@ jobs:
 
       - name: E2E smoke
         run: npm run test:e2e
-        env:
-          CI: "true"
