@@ -1,6 +1,6 @@
 # Релиз jFreeze pre-alpha
 
-Текущая версия: **0.2.0-pre-alpha** (см. [VERSION](../VERSION)).
+Текущая версия: **0.2.6-pre-alpha** (единый источник: [VERSION](../VERSION)).
 
 ## Перед публикацией
 
@@ -9,17 +9,17 @@ npm ci
 npm run verify
 ```
 
-Должны пройти: lint, 44+ unit-тестов, production build, 5 e2e.
+Проходят: lint, 73+ unit-тестов, production build, 8 e2e.
 
 ## Ветка и тег
 
 ```bash
-git checkout -b release/pre-alpha-0.2
-git add -A
-git commit -m "release: pre-alpha 0.2.0"
-git tag -a v0.2.0-pre-alpha -m "jFreeze pre-alpha 0.2.0"
-git push -u origin release/pre-alpha-0.2
-git push origin v0.2.0-pre-alpha
+# VERSION и apps/web/package.json уже совпадают
+npm run verify
+git tag -a v0.2.6-pre-alpha -m "jFreeze 0.2.6-pre-alpha"
+git push origin main
+git push origin v0.2.6-pre-alpha
+gh release create v0.2.6-pre-alpha --title "jFreeze 0.2.6-pre-alpha" --notes-file CHANGELOG-snippet.md
 ```
 
 ## Установка (пользователи)
@@ -29,10 +29,11 @@ git clone https://github.com/emildg8/jFreeze.git
 cd jFreeze
 npm install
 cp apps/web/.env.example apps/web/.env.local
+# AUTH_SECRET=…  см. docs/AUTH.md
 npm run dev
 ```
 
-Открыть http://localhost:3000
+http://localhost:3000
 
 ## Production (веб)
 
@@ -40,27 +41,26 @@ npm run dev
 npm run build
 cd apps/web
 node .next/standalone/apps/web/server.js
-# или npm run start (см. предупреждение standalone в логах)
 ```
 
 Переменные: `apps/web/.env.example`
 
-## Планировщик (cron)
+## Опциональные ключи (BYOK в UI или env)
 
-При запущенном сервере:
+| Сервис | Настройки / env |
+|--------|------------------|
+| OpenAI Vision (фото холодильника) | Настройки → OpenAI · `OPENAI_API_KEY` |
+| Proverka Cheka (детальный ОФД) | Настройки → ОФД · `PROVERKA_CHEKA_TOKEN` |
+| Telegram-бот | `TELEGRAM_BOT_TOKEN`, `PUBLIC_APP_URL` |
+
+## Планировщик (cron)
 
 | Задача | Команда |
 |--------|---------|
 | Срок годности → Telegram | `npm run reminders:daily` |
-| IMAP (если включён интервал) | `npm run imap:sync` |
+| IMAP | `npm run imap:sync` |
 
-С `CRON_SECRET` в `.env.local`:
-
-```bash
-CRON_SECRET=ваш_секрет JFREEZE_URL=https://your-host npm run imap:sync
-```
-
-API: `POST /api/reminders/tick`, `GET /api/sources/sync` (с `Authorization: Bearer CRON_SECRET`).
+С `CRON_SECRET`: `GET /api/sources/sync`, `POST /api/reminders/tick`.
 
 ## Платформы
 
@@ -70,20 +70,24 @@ API: `POST /api/reminders/tick`, `GET /api/sources/sync` (с `Authorization: Bea
 | Windows | [PLATFORMS.md](./PLATFORMS.md) |
 | Android / iOS | [MOBILE.md](./MOBILE.md) |
 | Telegram | [TELEGRAM_BOT.md](./TELEGRAM_BOT.md) |
+| Chrome | [BROWSER_EXTENSION.md](./BROWSER_EXTENSION.md) |
 
-## Что нового в 0.2.0
+## Веха 0.2.6 (итог цикла pre-alpha 0.2)
 
-См. [CHANGELOG.md](../CHANGELOG.md#020-pre-alpha--2026-06-01).
+См. [CHANGELOG.md](../CHANGELOG.md#026-pre-alpha--2026-06-01).
 
-Кратко: IMAP, QR ОФД, Telegram-напоминания, 5 платформ, экспорт Excel, источники почта/SMS, стабильный monorepo dev.
+- **Аккаунт** — заказы, холодильник, корзина, IMAP по `userId`
+- **Холодильник** — модель, фото (OpenAI / ручной ввод), несколько снимков, сроки при сохранении
+- **Telegram** — лента → холодильник или чек ОФД из подписи
+- **Заказы** — QR ОФД, «в холодильник», IMAP, экспорт
 
-## GitHub Release (текст)
+## GitHub Release (шаблон)
 
-**jFreeze 0.2.0-pre-alpha** — умный холодильник и заказы для РФ.
+**jFreeze 0.2.6-pre-alpha** — умный холодильник и заказы для РФ.
 
 - Веб/PWA, Windows, Android, iOS, Telegram
-- Импорт: демо, CSV, чеки, QR ОФД, почта, SMS, IMAP
-- Умная корзина, срок годности, семейные профили
-- Бесплатный стек; OpenAI и Proverkacheka — опционально (BYOK)
+- Цикл: заказы → холодильник → корзина → семья
+- Импорт: CSV, чеки, QR ОФД, IMAP, Telegram-фото
+- Бесплатный стек; OpenAI и Proverka — BYOK
 
-`npm run verify` перед деплоем. Обратная связь — Issues на GitHub.
+`npm run verify` перед деплоем.

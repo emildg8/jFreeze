@@ -5,7 +5,7 @@
 > Умный холодильник, история заказов, корзина, семья, Telegram.  
 > **Платформы:** Web/PWA · Windows · Android · iOS · Telegram · **расширение Chrome**.
 
-> Инструменты: [docs/FREE_STACK.md](docs/FREE_STACK.md) · Платформы: [docs/PLATFORMS.md](docs/PLATFORMS.md) · **Релиз:** [docs/RELEASE.md](docs/RELEASE.md)
+> **Версия:** [0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) · [docs/FREE_STACK.md](docs/FREE_STACK.md) · [docs/PLATFORMS.md](docs/PLATFORMS.md) · [docs/RELEASE.md](docs/RELEASE.md)
 
 ## Быстрый старт (веб)
 
@@ -44,11 +44,11 @@ Lint · unit · production build · e2e smoke.
 
 | Область | Возможности |
 |---------|-------------|
-| **Заказы** | Демо, CSV, чеки, **QR ОФД**, **в холодильник из заказа**, IMAP, экспорт Excel |
+| **Заказы** | Демо, CSV, чеки, **QR ОФД** (BYOK), **в холодильник**, IMAP, экспорт Excel |
 | **Аналитика** | Расходы за 7 дней и **по категориям** на главной |
-| **Холодильник** | Модель в настройках, **распознавание по фото** (OpenAI), фото/штрихкод, сроки, план полок |
+| **Холодильник** | Модель, **фото AI** (OpenAI BYOK), несколько снимков, **из Telegram**, штрихкод, сроки |
 | **Корзина** | Умный подбор, «Купил → в холодильник», AI (BYOK), шаринг |
-| **Семья** | Профили, Telegram-лента файлов |
+| **Семья** | Профили, Telegram-лента → холодильник / чек ОФД |
 | **Аккаунт** | Вход: телефон, почта, Google, Apple — [docs/AUTH.md](docs/AUTH.md) |
 | **Фон** | `npm run reminders:daily` · `npm run imap:sync` |
 
@@ -80,10 +80,10 @@ npm run imap:sync
 
 | Версия | Ветка |
 |--------|--------|
-| **0.2.6-pre-alpha** (текущая) | `main` |
-| 0.2.4-pre-alpha | [v0.2.4-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.4-pre-alpha) |
+| **0.2.6-pre-alpha** (текущая) | `main` · [релиз](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) |
+| 0.2.2-pre-alpha | [v0.2.2-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.2-pre-alpha) |
 | 0.2.1-pre-alpha | [v0.2.1-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.1-pre-alpha) |
-| 0.1.0-pre-alpha | `release/pre-alpha-0.1` |
+| 0.1.0-pre-alpha | [v0.1.0-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.1.0-pre-alpha) |
 
 Последний релиз: [v0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) · [CHANGELOG.md](CHANGELOG.md)
 

@@ -1,3 +1,4 @@
+import { APP_VERSION } from "@/lib/app-version";
 import { getStoreLabel } from "@/lib/constants/stores";
 import type { listOrdersWithItems } from "@/lib/services/orders";
 
@@ -116,7 +117,7 @@ export function ordersToJson(orders: OrderWithItems[]): string {
   const payload = {
     exportedAt: new Date().toISOString(),
     app: "jFreeze",
-    version: "0.2.0-pre-alpha",
+    version: APP_VERSION,
     orders: orders.map((o) => ({
       id: o.id,
       storeId: o.storeId,

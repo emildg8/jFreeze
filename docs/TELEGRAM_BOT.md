@@ -7,7 +7,7 @@
 | Функция | Описание |
 |---------|----------|
 | Привязка чата | Код из приложения → `/link AB12CD` в боте |
-| Семейная лента | Фото и документы в бот → видны в приложении и другим чатам |
+| Семейная лента | Фото и документы в бот → **в холодильник** или **чек ОФД** (QR в подписи) в приложении |
 | Уведомления | Срок годности, новые заказы, новые файлы в ленте |
 | Команды | `/fridge`, `/orders`, `/files`, `/profile`, `/notify` |
 
@@ -56,6 +56,7 @@ https://ваш-домен/api/telegram/webhook
 | POST | `/api/telegram/webhook` | Обновления от Telegram |
 | GET | `/api/telegram/inbox` | Лента файлов |
 | GET | `/api/telegram/inbox/:id` | Скачать файл |
+| POST | `/api/telegram/inbox/:id/import` | `{ "action": "fridge", "zone": "fridge" }` или `{ "action": "receipt" }` |
 | POST | `/api/telegram/notify` | Отправить сроки годности в TG |
 
 ## Команды бота

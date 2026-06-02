@@ -33,6 +33,7 @@ test("API health", async ({ request }) => {
   expect(res.ok()).toBeTruthy();
   const body = await res.json();
   expect(body.ok).toBe(true);
+  expect(body.version).toMatch(/^0\.2\.\d+/);
 });
 
 test("страница платформ", async ({ page }) => {

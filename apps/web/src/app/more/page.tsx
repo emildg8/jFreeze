@@ -4,6 +4,7 @@ import { NavCard } from "@/components/ui/NavCard";
 import { Panel } from "@/components/ui/Panel";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MoreAccountCard } from "@/components/auth/MoreAccountCard";
+import { APP_VERSION } from "@/lib/app-version";
 
 const links = [
   {
@@ -81,9 +82,9 @@ export default function MorePage() {
       </Section>
 
       <Panel variant="muted" className="text-sm text-slate-500">
-        <p className="font-semibold text-slate-800">jFreeze 0.2.3-pre-alpha</p>
+        <p className="font-semibold text-slate-800">jFreeze {APP_VERSION}</p>
         <p className="mt-1 leading-relaxed">
-          Заказы ↔ холодильник ↔ корзина · IMAP · QR ОФД · аккаунт · Telegram
+          Заказы ↔ холодильник ↔ корзина · фото AI · Telegram-лента · QR ОФД · аккаунт
         </p>
       </Panel>
     </Screen>

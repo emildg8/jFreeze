@@ -1,10 +1,14 @@
 import type { NextConfig } from "next";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const appDir = path.dirname(fileURLToPath(import.meta.url));
 /** Единый корень monorepo для standalone-трейсинга и Turbopack */
 const monorepoRoot = path.resolve(appDir, "../..");
+const appVersion = fs
+  .readFileSync(path.join(monorepoRoot, "VERSION"), "utf8")
+  .trim();
 const drizzleOrmRoot = path.resolve(appDir, "node_modules/drizzle-orm");
 const drizzleSqliteAdapter = path.resolve(
   monorepoRoot,
@@ -17,6 +21,9 @@ const webpackAliases = {
   "@auth/drizzle-adapter/sqlite": drizzleSqliteAdapter,
 } as const;
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+  },
   output: "standalone",
   outputFileTracingRoot: monorepoRoot,
   serverExternalPackages: ["better-sqlite3", "pdf-parse", "imapflow"],
