@@ -11,7 +11,13 @@ export function migrateColumns(sqlite: Database.Database) {
       .prepare(`PRAGMA table_info(${table})`)
       .all() as Array<{ name: string }>;
     if (!cols.some((c) => c.name === column)) {
-      sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+      try {
+        sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        // Параллельные воркеры Next.js при build могут вызвать migrate дважды
+        if (!/duplicate column name/i.test(msg)) throw e;
+      }
     }
   };
 
