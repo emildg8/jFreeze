@@ -1,11 +1,11 @@
-# jFreeze — pre-alpha 0.2
+# jFreeze — pre-alpha 0.2.6
 
 [![CI](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/emildg8/jFreeze/actions/workflows/ci.yml)
 
 > Умный холодильник, история заказов, корзина, семья, Telegram.  
 > **Платформы:** Web/PWA · Windows · Android · iOS · Telegram · **расширение Chrome**.
 
-> **Версия:** [0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) · [docs/FREE_STACK.md](docs/FREE_STACK.md) · [docs/PLATFORMS.md](docs/PLATFORMS.md) · [docs/RELEASE.md](docs/RELEASE.md)
+> **Версия:** [0.2.7-pre-alpha](https://github.com/emildg8/jFreeze/releases/latest) · [docs/FREE_STACK.md](docs/FREE_STACK.md) · [docs/PLATFORMS.md](docs/PLATFORMS.md) · [docs/RELEASE.md](docs/RELEASE.md)
 
 ## Быстрый старт (веб)
 
@@ -85,7 +85,7 @@ npm run imap:sync
 | 0.2.1-pre-alpha | [v0.2.1-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.1-pre-alpha) |
 | 0.1.0-pre-alpha | [v0.1.0-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.1.0-pre-alpha) |
 
-Последний релиз: [v0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha) · [CHANGELOG.md](CHANGELOG.md)
+Последний релиз: [releases/latest](https://github.com/emildg8/jFreeze/releases/latest) · [CHANGELOG.md](CHANGELOG.md)
 
 ## Лицензия
 

@@ -21,6 +21,14 @@
 - [x] **Расширение Chrome** (`extensions/browser/`, [BROWSER_EXTENSION.md](./BROWSER_EXTENSION.md))
 - [x] CI на `main`, релиз `v0.2.0-pre-alpha`
 
+## v0.2.6 — цикл «заказы ↔ холодильник ↔ семья» ✅
+
+- [x] Аккаунт: scope заказов, IMAP, корзины по `userId`
+- [x] Модель холодильника + OpenAI Vision по фото (BYOK)
+- [x] Telegram: семейная лента → холодильник / чек ОФД из подписи
+- [x] ОФД: токен Proverka Cheka в настройках
+- [x] Релиз [v0.2.6-pre-alpha](https://github.com/emildg8/jFreeze/releases/tag/v0.2.6-pre-alpha)
+
 ## v0.3 — неделя 2 ✅
 
 - [x] Опциональный Vision API (ключ пользователя / Pro)

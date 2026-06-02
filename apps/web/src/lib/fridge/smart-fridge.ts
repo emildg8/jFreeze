@@ -13,8 +13,9 @@ export class SmartFridgeProvider implements FridgeVisionProvider {
   async detectFromImage(
     _buffer: Buffer,
     zone: "fridge" | "freezer",
-    _context: FridgeVisionContext,
+    ..._args: [FridgeVisionContext]
   ): Promise<DetectedItem[]> {
+    void _args;
     const url = new URL("/api/jfreeze/inventory", this.baseUrl.replace(/\/$/, ""));
     url.searchParams.set("zone", zone);
 

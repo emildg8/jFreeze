@@ -2,7 +2,13 @@
 
 ## [Unreleased]
 
-_Планируется в следующих pre-alpha._
+## [0.2.7-pre-alpha] — 2026-06-02
+
+### Обновлено
+
+- Зависимости: `next-auth` beta.31, React 19.2.7, `vitest` 3.2.6, `pdf-parse` 1.1.4
+- Roadmap: веха 0.2.6 (аккаунт, фото, Telegram, ОФД BYOK)
+- Единая версия из `VERSION` в UI и `/api/health`
 
 ## [0.2.6-pre-alpha] — 2026-06-01
 
