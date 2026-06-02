@@ -35,6 +35,7 @@ async function sendToJfreeze(text, pageUrl) {
   const res = await fetch(`${baseUrl}/api/receipts/import`, {
     method: "POST",
     body: form,
+    credentials: "include",
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

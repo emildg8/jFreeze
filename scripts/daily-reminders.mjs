@@ -8,7 +8,11 @@
  */
 const base = (process.env.JFREEZE_URL ?? "http://127.0.0.1:3000").replace(/\/$/, "");
 
-const res = await fetch(`${base}/api/reminders/tick`, { method: "POST" });
+const headers = {};
+const secret = process.env.CRON_SECRET?.trim();
+if (secret) headers.Authorization = `Bearer ${secret}`;
+
+const res = await fetch(`${base}/api/reminders/tick`, { method: "POST", headers });
 const body = await res.json().catch(() => ({}));
 
 if (!res.ok) {
